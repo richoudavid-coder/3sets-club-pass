@@ -37,6 +37,9 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           <NavLink to="/admin/qrcodes" className={({ isActive }) => (isActive ? 'active' : '')}>
             QR codes clubs
           </NavLink>
+          <NavLink to="/admin/clubs" className={({ isActive }) => (isActive ? 'active' : '')}>
+            Gestion des clubs
+          </NavLink>
         </nav>
 
         {children}

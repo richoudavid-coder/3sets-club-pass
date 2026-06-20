@@ -7,6 +7,7 @@ import { AuthPage } from './pages/AuthPage'
 import { AdminDashboardPage } from './pages/AdminDashboardPage'
 import { AdminPlayerPage } from './pages/AdminPlayerPage'
 import { AdminQrCodesPage } from './pages/AdminQrCodesPage'
+import { AdminClubsPage } from './pages/AdminClubsPage'
 import { ProtectedAdminRoute } from './components/ProtectedAdminRoute'
 
 export default function App() {
@@ -40,6 +41,14 @@ export default function App() {
             element={
               <ProtectedAdminRoute>
                 <AdminQrCodesPage />
+              </ProtectedAdminRoute>
+            }
+          />
+          <Route
+            path="/admin/clubs"
+            element={
+              <ProtectedAdminRoute>
+                <AdminClubsPage />
               </ProtectedAdminRoute>
             }
           />
