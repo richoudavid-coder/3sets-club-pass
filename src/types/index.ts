@@ -29,8 +29,8 @@ export interface Player {
   phone: string
   sport: Sport
   club_id: string
+  newsletter: boolean
   created_at: string
-  // Champ enrichi côté client (jointure)
   club?: Club
 }
 
@@ -54,7 +54,6 @@ export interface PlayerCoupon {
   status: CouponStatus
   used_at: string | null
   created_at: string
-  // Champ enrichi côté client (jointure)
   coupon?: Coupon
   player?: Player
 }
@@ -66,7 +65,6 @@ export interface Profile {
   created_at: string
 }
 
-// Forme calculée d'un coupon attribué à un joueur, prête à afficher
 export interface PlayerCouponView {
   playerCouponId: string
   title: string

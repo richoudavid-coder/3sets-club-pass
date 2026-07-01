@@ -102,7 +102,7 @@ export function AdminDashboardPage() {
   function exportPlayersCsv() {
     downloadCsv(
       'joueurs-3sets-club-pass.csv',
-      ['Prénom', 'Nom', 'Email', 'Téléphone', 'Sport', 'Club', "Date d'inscription"],
+      ['Prenom', 'Nom', 'Email', 'Telephone', 'Sport', 'Club', 'Inscription', 'Newsletter'],
       filteredPlayers.map((p) => [
         p.first_name,
         p.last_name,
@@ -111,6 +111,7 @@ export function AdminDashboardPage() {
         SPORT_LABELS[p.sport],
         p.club?.name ?? '',
         new Date(p.created_at).toLocaleDateString('fr-FR'),
+        p.newsletter ? 'Oui' : 'Non',
       ])
     )
   }
