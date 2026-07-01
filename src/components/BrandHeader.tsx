@@ -19,7 +19,7 @@ export function BrandHeader({ wide, tagline, actions }: BrandHeaderProps) {
       <div className="brand-header__inner">
         <div>
           <Link to="/" className="brand-logo" style={{ fontFamily: "'Bebas Neue', system-ui", letterSpacing: "0.04em", fontSize: "2rem" }}>
-            3SET<span className="accent">S</span>
+            <img src="/logo-white.svg" alt="3SETS" style={{height:36,display:"block"}} />
             <small>Club Pass</small>
           </Link>
           {tagline && <div className="brand-tag">{tagline}</div>}
