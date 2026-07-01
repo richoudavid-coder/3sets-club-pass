@@ -10,7 +10,7 @@ interface BrandHeaderProps {
 /**
  * En-tête de marque réutilisable.
  * Le logo est actuellement un placeholder texte stylisé "3SETS".
- * Pour intégrer un vrai logo plus tard : remplace le contenu de <Link className="brand-logo">
+ * Pour intégrer un vrai logo plus tard : remplace le contenu de <Link className="brand-logo" style={{ fontFamily: "'Bebas Neue', system-ui", letterSpacing: "0.04em", fontSize: "2rem" }}>
  * par une balise <img src="/logo.svg" alt="3SETS" height={32} /> (place le fichier dans /public).
  */
 export function BrandHeader({ wide, tagline, actions }: BrandHeaderProps) {
@@ -18,7 +18,7 @@ export function BrandHeader({ wide, tagline, actions }: BrandHeaderProps) {
     <header className={`brand-header ${wide ? 'brand-header--wide' : ''}`}>
       <div className="brand-header__inner">
         <div>
-          <Link to="/" className="brand-logo">
+          <Link to="/" className="brand-logo" style={{ fontFamily: "'Bebas Neue', system-ui", letterSpacing: "0.04em", fontSize: "2rem" }}>
             3SET<span className="accent">S</span>
             <small>Club Pass</small>
           </Link>
