@@ -35,7 +35,7 @@ export function AdminClubsPage() {
 
   async function loadClubs() {
     setLoading(true)
-    const result = await supabase.from('clubs').select('*').order('name', { ascending: true })
+    const result = await supabase.from('clubs').select('*').order('sport', { ascending: true }).order('name', { ascending: true })
     setClubs((result.data || []) as Club[])
     setLoading(false)
   }

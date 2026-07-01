@@ -912,3 +912,122 @@ tbody tr:hover {
 .cp-card__status--used { background: rgba(255,80,80,0.1); color: #ff5050; }
 .cp-card__status--expired { background: rgba(120,120,120,0.12); color: #555; }
 .cp-card__terms { font-size: 0.62rem; color: #3a3a3a; text-align: right; line-height: 1.3; }
+
+/* ============================================================
+   Coupon card v2 — style lisible, aere, contraste eleve
+   ============================================================ */
+.cpv2-card {
+  background: var(--white);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-card);
+  border: 1.5px solid var(--grey-line);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.15s ease;
+}
+.cpv2-card--used { opacity: 0.7; }
+.cpv2-card--expired { opacity: 0.5; }
+.cpv2-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 20px 16px;
+  gap: 12px;
+  background: var(--navy);
+  position: relative;
+}
+.cpv2-card__top::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--orange);
+}
+.cpv2-card__left { flex: 1; }
+.cpv2-card__highlight {
+  font-family: "Bebas Neue", var(--font-display);
+  font-size: 3.2rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--orange);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.cpv2-card--used .cpv2-card__highlight,
+.cpv2-card--expired .cpv2-card__highlight {
+  color: rgba(255,255,255,0.3);
+}
+.cpv2-card__title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+}
+.cpv2-card__title--full {
+  font-size: 1.2rem;
+  margin-top: 4px;
+}
+.cpv2-card__desc {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.65);
+  margin: 6px 0 0;
+  line-height: 1.4;
+}
+.cpv2-card__num {
+  font-family: "Bebas Neue", var(--font-display);
+  font-size: 2rem;
+  color: rgba(255,255,255,0.15);
+  line-height: 1;
+  flex-shrink: 0;
+}
+.cpv2-card__divider { height: 1px; background: var(--grey-line); }
+.cpv2-card__bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  gap: 12px;
+  background: var(--grey-bg);
+  flex-wrap: wrap;
+}
+.cpv2-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+.cpv2-card__terms {
+  font-size: 0.78rem;
+  color: var(--grey-text);
+  line-height: 1.4;
+}
+.cpv2-card__date {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--navy-soft);
+}
+.cpv2-status {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 100px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.cpv2-status--available {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.cpv2-status--used {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.cpv2-status--expired {
+  background: var(--neutral-bg);
+  color: var(--neutral);
+}

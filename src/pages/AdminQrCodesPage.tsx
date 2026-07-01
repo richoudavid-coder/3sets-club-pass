@@ -13,7 +13,7 @@ export function AdminQrCodesPage() {
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase.from('clubs').select('*').order('name', { ascending: true })
+      const { data } = await supabase.from('clubs').select('*').order('sport', { ascending: true }).order('name', { ascending: true })
       setClubs((data ?? []) as Club[])
       setLoading(false)
     }

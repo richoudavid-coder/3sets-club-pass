@@ -100,7 +100,7 @@ export function AuthPage() {
           </form>
         </div>
 
-        <p className="text-center" style={{ fontSize: '0.78rem', color: 'var(--grey-text)', marginTop: 18 }}>
+        <p className="text-center" style={{ fontSize: '0.78rem', color: 'var(--grey-text)', marginTop: 12 }}><a href="/mot-de-passe-oublie" style={{ color: 'var(--navy)', fontWeight: 700 }}>Mot de passe oublie ?</a></p><p className="text-center" style={{ fontSize: '0.78rem', color: 'var(--grey-text)', marginTop: 8 }}>
           Le compte magasin@3sets.fr devient automatiquement administrateur à sa création (voir le
           script SQL fourni).
         </p>
