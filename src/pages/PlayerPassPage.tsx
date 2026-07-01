@@ -5,12 +5,12 @@ import { Loader } from '../components/Loader'
 import { CouponCard } from '../components/CouponCard'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { computeDisplayStatus } from '../lib/coupons'
-import { SPORT_LABELS, type Player, type PlayerCouponView } from '../types'
+import { SPORT_LABELS, type Player, type PlayerCouponView, type Club } from '../types'
 
 export function PlayerPassPage() {
-  const { playerId } = useParams()
-  const [player, setPlayer] = useState(null)
-  const [coupons, setCoupons] = useState([])
+  const { playerId } = useParams<{ playerId: string }>()
+  const [player, setPlayer] = useState<(Player & { club: Club }) | null>(null)
+  const [coupons, setCoupons] = useState<PlayerCouponView[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
@@ -22,19 +22,21 @@ export function PlayerPassPage() {
       const { data: playerData, error: playerError } = await supabase
         .from('players').select('*, club:clubs(*)').eq('id', playerId).maybeSingle()
       if (playerError || !playerData) { setNotFound(true); setLoading(false); return }
-      setPlayer(playerData)
+      setPlayer(playerData as Player & { club: Club })
       const { data: pcData } = await supabase
         .from('player_coupons').select('*, coupon:coupons(*)')
         .eq('player_id', playerId).order('created_at', { ascending: true })
-      const views = (pcData || []).filter((pc) => pc.coupon).map((pc) => ({
-        playerCouponId: pc.id,
-        title: pc.coupon.title,
-        description: pc.coupon.description,
-        terms: pc.coupon.terms,
-        endDate: pc.coupon.end_date,
-        status: computeDisplayStatus(pc.status, pc.coupon.end_date),
-        usedAt: pc.used_at,
-      }))
+      const views: PlayerCouponView[] = ((pcData ?? []) as any[])
+        .filter((pc) => pc.coupon)
+        .map((pc) => ({
+          playerCouponId: pc.id,
+          title: pc.coupon.title,
+          description: pc.coupon.description,
+          terms: pc.coupon.terms,
+          endDate: pc.coupon.end_date,
+          status: computeDisplayStatus(pc.status, pc.coupon.end_date),
+          usedAt: pc.used_at,
+        }))
       setCoupons(views)
       setLoading(false)
     }
