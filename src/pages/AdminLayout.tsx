@@ -33,6 +33,9 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           <NavLink to="/admin" end className={({ isActive }) => (isActive ? "active" : "")}>
             Tableau de bord
           </NavLink>
+          <NavLink to="/admin/notifications" className={({ isActive }) => (isActive ? "active" : "")}>
+            Notifications
+          </NavLink>
           <NavLink to="/admin/performances" className={({ isActive }) => (isActive ? "active" : "")}>
             Performances
           </NavLink>

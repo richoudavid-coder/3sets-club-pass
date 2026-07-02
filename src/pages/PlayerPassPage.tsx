@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom"
 import { BrandHeader } from "../components/BrandHeader"
 import { Loader } from "../components/Loader"
 import { CouponCard } from "../components/CouponCard"
+import { NotificationBanner } from "../components/NotificationBanner"
 import { supabase, isSupabaseConfigured } from "../lib/supabase"
 import { computeDisplayStatus } from "../lib/coupons"
 import { SPORT_LABELS, type Player, type PlayerCouponView, type Club } from "../types"
@@ -91,6 +92,7 @@ export function PlayerPassPage() {
             <span className="pass-greeting__tag">{SPORT_LABELS[player.sport as keyof typeof SPORT_LABELS]}</span>
           </div>
         </div>
+        <NotificationBanner />
         <p style={{ color: "var(--grey-text)", fontSize: "0.88rem", marginTop: 4 }}>
           Presente cet ecran en magasin pour faire valider tes coupons par un vendeur 3SETS.
         </p>
