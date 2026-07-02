@@ -25,7 +25,7 @@ export function AdminClubsPage() {
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
-  const [sport, setSport] = useState<Sport>('tennis')
+  const [sports, setSports] = useState<string[]>(['tennis'])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<string | null>(null)
@@ -78,7 +78,8 @@ export function AdminClubsPage() {
     const result = await supabase.from('clubs').insert({
       name: cleanName,
       slug: cleanSlug,
-      sport: sport,
+      sport: sports[0] || 'tennis',
+      sports: sports,
       active: true,
     })
 
@@ -167,14 +168,26 @@ export function AdminClubsPage() {
           </div>
 
           <div className="field">
-            <label>Sport</label>
-            <select value={sport} onChange={(e) => setSport(e.target.value as Sport)}>
+            <label>Sports proposes</label>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
               {Object.keys(SPORT_LABELS).map((key) => (
-                <option key={key} value={key}>
-                  {SPORT_LABELS[key as Sport]}
-                </option>
+                <label key={key} style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 400, cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={sports.includes(key)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSports([...sports, key])
+                      } else {
+                        setSports(sports.filter((s) => s !== key))
+                      }
+                    }}
+                    style={{ width: 16, height: 16, accentColor: "var(--orange)" }}
+                  />
+                  {SPORT_LABELS[key as keyof typeof SPORT_LABELS]}
+                </label>
               ))}
-            </select>
+            </div>
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={submitting}>

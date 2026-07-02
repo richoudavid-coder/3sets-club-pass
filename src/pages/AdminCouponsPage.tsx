@@ -91,6 +91,38 @@ export function AdminCouponsPage() {
     loadCoupons()
   }
 
+  async function handleAttributeAll(coupon: any) {
+    setFeedback(null)
+    // Recuperer tous les joueurs du sport concerne
+    const { data: players } = await supabase
+      .from("players")
+      .select("id")
+      .eq("sport", coupon.sport)
+
+    if (!players || players.length === 0) {
+      setFeedback("Aucun joueur trouve pour ce sport.")
+      return
+    }
+
+    // Attribuer le coupon a tous les joueurs qui ne l'ont pas encore
+    const rows = players.map((p: any) => ({
+      player_id: p.id,
+      coupon_id: coupon.id,
+      status: "available",
+    }))
+
+    const { error } = await supabase
+      .from("player_coupons")
+      .upsert(rows, { onConflict: "player_id,coupon_id", ignoreDuplicates: true })
+
+    if (error) {
+      setFeedback("Erreur lors de l attribution.")
+    } else {
+      setFeedback("Coupon attribue a tous les joueurs de " + SPORT_LABELS[coupon.sport as keyof typeof SPORT_LABELS] + " avec succes.")
+    }
+    loadCoupons()
+  }
+
   async function handleDeleteCoupon() {
     if (!deleteTarget) return
     setDeleting(true)
@@ -191,6 +223,7 @@ export function AdminCouponsPage() {
                 <td style={{ display: "flex", gap: 6 }}>
                   <button className="btn btn-secondary btn-sm" onClick={() => startEdit(coupon)}>Modifier</button>
                   <button className="btn btn-secondary btn-sm" onClick={() => toggleActive(coupon)}>{coupon.active ? "Desactiver" : "Reactiver"}</button>
+                  <button className="btn btn-primary btn-sm" onClick={() => handleAttributeAll(coupon)} title="Attribuer ce coupon a tous les joueurs du sport">Attribuer a tous</button>
                   <button className="btn btn-danger btn-sm" onClick={() => setDeleteTarget(coupon)}>Supprimer</button>
                 </td>
               </tr>

@@ -100,9 +100,24 @@ export function ClubSignupPage() {
         return
       }
 
-      const { data: matchingCoupons } = await supabase
-        .from("coupons").select("id").eq("sport", club.sport).eq("active", true)
-        .or("club_id.is.null,club_id.eq." + club.id)
+      // Recuperer tous les sports du club (multi-sports ou sport unique)
+      const clubSports = club.sports && club.sports.length > 0 ? club.sports : [club.sport]
+      
+      // Attribuer les coupons pour chaque sport du club
+      const allCoupons = []
+      for (const sp of clubSports) {
+        const { data } = await supabase
+          .from("coupons").select("id").eq("sport", sp).eq("active", true)
+          .or("club_id.is.null,club_id.eq." + club.id)
+        if (data) allCoupons.push(...data)
+      }
+      // Dedupliquer
+      const seen = new Set()
+      const matchingCoupons = allCoupons.filter((c) => {
+        if (seen.has(c.id)) return false
+        seen.add(c.id)
+        return true
+      })
 
       if (matchingCoupons && matchingCoupons.length > 0) {
         const rows = matchingCoupons.map((c) => ({
