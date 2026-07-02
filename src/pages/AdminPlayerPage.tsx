@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import { AdminLayout } from "./AdminLayout"
 import { Loader } from "../components/Loader"
 import { CouponCard } from "../components/CouponCard"
@@ -17,11 +17,13 @@ interface PlayerCouponDetail {
 
 export function AdminPlayerPage() {
   const { playerId } = useParams<{ playerId: string }>()
+  const navigate = useNavigate()
   const [player, setPlayer] = useState<(Player & { club: Club }) | null>(null)
   const [coupons, setCoupons] = useState<PlayerCouponDetail[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [confirmTarget, setConfirmTarget] = useState<PlayerCouponDetail | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [validating, setValidating] = useState(false)
   const [feedback, setFeedback] = useState<string | null>(null)
 
@@ -41,6 +43,18 @@ export function AdminPlayerPage() {
   }
 
   useEffect(() => { loadData() }, [playerId])
+
+  async function handleDeletePlayer() {
+    if (!player) return
+    setValidating(true)
+    const { error } = await supabase.from("players").delete().eq("id", player.id)
+    if (!error) {
+      navigate("/admin")
+    } else {
+      setFeedback("Erreur lors de la suppression du joueur.")
+    }
+    setValidating(false)
+  }
 
   async function handleValidate() {
     if (!confirmTarget) return
@@ -83,6 +97,11 @@ export function AdminPlayerPage() {
           <div>Inscription<br /><strong>{formatDateFr(player.created_at)}</strong></div>
         </div>
       </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+        <button className="btn btn-danger btn-sm" onClick={() => setConfirmDelete(true)}>
+          Supprimer ce joueur
+        </button>
+      </div>
       <h3 className="section-title mt-24">Coupons du joueur</h3>
       <div className="coupons-grid">
         {coupons.length === 0 && (
@@ -118,6 +137,16 @@ export function AdminPlayerPage() {
           )
         })}
       </div>
+      {confirmDelete ? (
+        <ConfirmModal
+          title="Supprimer ce joueur ?"
+          message={"Confirmer la suppression de " + player.first_name + " " + player.last_name + " ? Tous ses coupons seront egalement supprimes. Cette action est irreversible."}
+          confirmLabel="Supprimer definitivement"
+          onConfirm={handleDeletePlayer}
+          onCancel={() => setConfirmDelete(false)}
+          busy={validating}
+        />
+      ) : null}
       {confirmTarget ? (
         <ConfirmModal
           title="Valider ce coupon ?"

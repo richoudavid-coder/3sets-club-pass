@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react"
 import { AdminLayout } from "./AdminLayout"
+import { ConfirmModal } from "../components/ConfirmModal"
 import { Loader } from "../components/Loader"
 import { supabase } from "../lib/supabase"
 import { SPORT_LABELS, type Coupon, type Sport } from "../types"
@@ -12,6 +13,8 @@ export function AdminCouponsPage() {
   const [feedback, setFeedback] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const emptyForm = {
     title: "", description: "", terms: "",
@@ -85,6 +88,16 @@ export function AdminCouponsPage() {
     setEditing(null)
     setForm(emptyForm)
     setShowForm(false)
+    loadCoupons()
+  }
+
+  async function handleDeleteCoupon() {
+    if (!deleteTarget) return
+    setDeleting(true)
+    await supabase.from("coupons").delete().eq("id", deleteTarget.id)
+    setFeedback("Coupon supprime avec succes.")
+    setDeleteTarget(null)
+    setDeleting(false)
     loadCoupons()
   }
 
@@ -176,6 +189,7 @@ export function AdminCouponsPage() {
                 <td style={{ display: "flex", gap: 6 }}>
                   <button className="btn btn-secondary btn-sm" onClick={() => startEdit(coupon)}>Modifier</button>
                   <button className="btn btn-secondary btn-sm" onClick={() => toggleActive(coupon)}>{coupon.active ? "Desactiver" : "Reactiver"}</button>
+                  <button className="btn btn-danger btn-sm" onClick={() => setDeleteTarget(coupon)}>Supprimer</button>
                 </td>
               </tr>
             ))}
@@ -185,6 +199,16 @@ export function AdminCouponsPage() {
           </tbody>
         </table>
       </div>
+      {deleteTarget ? (
+        <ConfirmModal
+          title="Supprimer ce coupon ?"
+          message={"Confirmer la suppression du coupon \"" + deleteTarget.title + "\" ? Cette action est irreversible."}
+          confirmLabel="Supprimer definitivement"
+          onConfirm={handleDeleteCoupon}
+          onCancel={() => setDeleteTarget(null)}
+          busy={deleting}
+        />
+      ) : null}
     </AdminLayout>
   )
 }
