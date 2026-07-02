@@ -170,6 +170,7 @@ export function AdminCouponsPage() {
             <tr>
               <th>Titre</th>
               <th>Sport</th>
+              <th>Debut</th>
               <th>Fin</th>
               <th>Statut</th>
               <th></th>
@@ -180,6 +181,7 @@ export function AdminCouponsPage() {
               <tr key={coupon.id} style={{ opacity: coupon.active ? 1 : 0.5 }}>
                 <td><strong>{coupon.title}</strong><br /><span style={{ fontSize: "0.78rem", color: "var(--grey-text)" }}>{coupon.description}</span></td>
                 <td>{SPORT_LABELS[coupon.sport as keyof typeof SPORT_LABELS]}</td>
+                <td>{formatDateFr(coupon.start_date)}</td>
                 <td>{formatDateFr(coupon.end_date)}</td>
                 <td>
                   <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: coupon.active ? "var(--success-bg)" : "var(--neutral-bg)", color: coupon.active ? "var(--success)" : "var(--neutral)" }}>
