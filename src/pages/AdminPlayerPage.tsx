@@ -25,6 +25,7 @@ export function AdminPlayerPage() {
   const [confirmTarget, setConfirmTarget] = useState<PlayerCouponDetail | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [validating, setValidating] = useState(false)
+  const [montantPanier, setMontantPanier] = useState<string>("")
   const [feedback, setFeedback] = useState<string | null>(null)
 
   async function loadData() {
@@ -60,9 +61,10 @@ export function AdminPlayerPage() {
     if (!confirmTarget) return
     setValidating(true)
     setFeedback(null)
+    const montant = montantPanier ? parseFloat(montantPanier) : null
     const { data, error } = await supabase
       .from("player_coupons")
-      .update({ status: "used", used_at: new Date().toISOString() })
+      .update({ status: "used", used_at: new Date().toISOString(), montant_panier: montant })
       .eq("id", confirmTarget.id).eq("status", "available").select()
     if (error || !data || data.length === 0) {
       setFeedback("Ce coupon ne peut pas etre valide.")
@@ -71,6 +73,7 @@ export function AdminPlayerPage() {
     }
     setConfirmTarget(null)
     setValidating(false)
+    setMontantPanier("")
     await loadData()
   }
 

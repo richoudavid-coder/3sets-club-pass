@@ -19,14 +19,16 @@ export function AdminPerformancesPage() {
       const { data: players } = await supabase.from("players").select("id, club_id")
       const { data: pc } = await supabase
         .from("player_coupons")
-        .select("id, status, player_id, coupon:coupons(valeur_euros, sport)")
+        .select("id, status, player_id, montant_panier, coupon:coupons(valeur_euros, sport)")
         .eq("status", "used")
 
       const clubStats = (clubs || []).map((club: any) => {
         const clubPlayers = (players || []).filter((p: any) => p.club_id === club.id)
         const playerIds = clubPlayers.map((p: any) => p.id)
         const usedCoupons = (pc || []).filter((p: any) => playerIds.includes(p.player_id))
-        const ca = usedCoupons.reduce((sum: number, p: any) => sum + (p.coupon?.valeur_euros || 0), 0)
+        const caReel = usedCoupons.reduce((sum: number, p: any) => sum + (p.montant_panier || 0), 0)
+        const caEstime = usedCoupons.reduce((sum: number, p: any) => sum + (p.coupon?.valeur_euros || 0), 0)
+        const panierCount = usedCoupons.filter((p: any) => p.montant_panier > 0).length
         return {
           id: club.id,
           name: club.name,
@@ -34,12 +36,15 @@ export function AdminPerformancesPage() {
           sports: club.sports,
           joueurs: clubPlayers.length,
           couponsUtilises: usedCoupons.length,
-          ca: ca,
+          caReel: caReel,
+          caEstime: caEstime,
+          ca: caReel > 0 ? caReel : caEstime,
+          panierCount: panierCount,
         }
       }).sort((a: any, b: any) => b.ca - a.ca)
 
       setStats(clubStats)
-      setTotalCA(clubStats.reduce((s: number, c: any) => s + c.ca, 0))
+      setTotalCA(clubStats.reduce((s: number, c: any) => s + c.caReel, 0))
       setTotalCoupons(clubStats.reduce((s: number, c: any) => s + c.couponsUtilises, 0))
       setTotalJoueurs(clubStats.reduce((s: number, c: any) => s + c.joueurs, 0))
       setLoading(false)
@@ -68,7 +73,7 @@ export function AdminPerformancesPage() {
         </div>
         <div className="stat-card stat-card--accent">
           <div className="stat-card__value">{totalCA.toFixed(0)} €</div>
-          <div className="stat-card__label">CA influence estime</div>
+          <div className="stat-card__label">CA reel (paniers saisis)</div>
         </div>
       </div>
 
@@ -111,8 +116,9 @@ export function AdminPerformancesPage() {
               <th>Sport(s)</th>
               <th>Joueurs</th>
               <th>Coupons utilises</th>
-              <th>CA influence</th>
-              <th>Moy. / joueur</th>
+              <th>CA reel</th>
+              <th>CA estime</th>
+              <th>Moy. panier</th>
             </tr>
           </thead>
           <tbody>
@@ -126,11 +132,14 @@ export function AdminPerformancesPage() {
                 </td>
                 <td>{club.joueurs}</td>
                 <td>{club.couponsUtilises}</td>
-                <td style={{ fontWeight: 700, color: club.ca > 0 ? "var(--orange)" : "var(--grey-text)" }}>
-                  {club.ca.toFixed(2)} €
+                <td style={{ fontWeight: 700, color: club.caReel > 0 ? "var(--orange)" : "var(--grey-text)" }}>
+                  {club.caReel > 0 ? club.caReel.toFixed(2) + " €" : "-"}
                 </td>
                 <td style={{ color: "var(--grey-text)" }}>
-                  {club.joueurs > 0 ? (club.ca / club.joueurs).toFixed(2) + " €" : "-"}
+                  {club.caEstime > 0 ? club.caEstime.toFixed(2) + " €" : "-"}
+                </td>
+                <td style={{ color: "var(--grey-text)" }}>
+                  {club.panierCount > 0 ? (club.caReel / club.panierCount).toFixed(2) + " €" : "-"}
                 </td>
               </tr>
             ))}
