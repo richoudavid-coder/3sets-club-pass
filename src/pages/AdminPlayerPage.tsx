@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react"
-import { useParams, Link, useNavigate } from "react-router-dom"
+import { useParams, Link } from "react-router-dom"
 import { AdminLayout } from "./AdminLayout"
 import { Loader } from "../components/Loader"
 import { CouponCard } from "../components/CouponCard"
-import { ConfirmModal } from "../components/ConfirmModal"
 import { supabase } from "../lib/supabase"
 import { computeDisplayStatus, formatDateFr, formatDateTimeFr } from "../lib/coupons"
 import { SPORT_LABELS, type Club, type Player } from "../types"
@@ -12,21 +11,21 @@ interface PlayerCouponDetail {
   id: string
   status: "available" | "used" | "expired"
   used_at: string | null
+  montant_panier: number | null
   coupon: { id: string; title: string; description: string; end_date: string }
 }
 
 export function AdminPlayerPage() {
   const { playerId } = useParams<{ playerId: string }>()
-  const navigate = useNavigate()
   const [player, setPlayer] = useState<(Player & { club: Club }) | null>(null)
   const [coupons, setCoupons] = useState<PlayerCouponDetail[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [confirmTarget, setConfirmTarget] = useState<PlayerCouponDetail | null>(null)
-  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [resetTarget, setResetTarget] = useState<PlayerCouponDetail | null>(null)
   const [validating, setValidating] = useState(false)
-  const [montantPanier, setMontantPanier] = useState<string>("")
   const [feedback, setFeedback] = useState<string | null>(null)
+  const [montantPanier, setMontantPanier] = useState("")
 
   async function loadData() {
     if (!playerId) return
@@ -37,25 +36,13 @@ export function AdminPlayerPage() {
     setPlayer(playerData as Player & { club: Club })
     const { data: pcData } = await supabase
       .from("player_coupons")
-      .select("id, status, used_at, coupon:coupons(id, title, description, end_date)")
+      .select("id, status, used_at, montant_panier, coupon:coupons(id, title, description, end_date)")
       .eq("player_id", playerId).order("created_at", { ascending: true })
     setCoupons((pcData ?? []) as unknown as PlayerCouponDetail[])
     setLoading(false)
   }
 
   useEffect(() => { loadData() }, [playerId])
-
-  async function handleDeletePlayer() {
-    if (!player) return
-    setValidating(true)
-    const { error } = await supabase.from("players").delete().eq("id", player.id)
-    if (!error) {
-      navigate("/admin")
-    } else {
-      setFeedback("Erreur lors de la suppression du joueur.")
-    }
-    setValidating(false)
-  }
 
   async function handleValidate() {
     if (!confirmTarget) return
@@ -69,15 +56,33 @@ export function AdminPlayerPage() {
     if (error || !data || data.length === 0) {
       setFeedback("Ce coupon ne peut pas etre valide.")
     } else {
-      setFeedback("Coupon valide avec succes.")
+      setFeedback("Coupon valide avec succes." + (montant ? " Panier : " + montant.toFixed(2) + " euros." : ""))
     }
     setConfirmTarget(null)
-    setValidating(false)
     setMontantPanier("")
+    setValidating(false)
     await loadData()
   }
 
-  if (loading) return <AdminLayout><Loader label="Chargement..." /></AdminLayout>
+  async function handleReset() {
+    if (!resetTarget) return
+    setValidating(true)
+    setFeedback(null)
+    const { error } = await supabase
+      .from("player_coupons")
+      .update({ status: "available", used_at: null, montant_panier: null })
+      .eq("id", resetTarget.id)
+    if (error) {
+      setFeedback("Erreur lors de la remise a disponible.")
+    } else {
+      setFeedback("Coupon remis en disponible avec succes.")
+    }
+    setResetTarget(null)
+    setValidating(false)
+    await loadData()
+  }
+
+  if (loading) return <AdminLayout><Loader label="Chargement de la fiche joueur..." /></AdminLayout>
 
   if (notFound || !player) return (
     <AdminLayout>
@@ -96,20 +101,19 @@ export function AdminPlayerPage() {
           <div>Email<br /><strong>{player.email}</strong></div>
           <div>Telephone<br /><strong>{player.phone}</strong></div>
           <div>Club<br /><strong>{player.club?.name ?? "-"}</strong></div>
-          <div>Sport<br /><strong>{SPORT_LABELS[player.sport]}</strong></div>
+          <div>Sport<br /><strong>{SPORT_LABELS[player.sport as keyof typeof SPORT_LABELS]}</strong></div>
           <div>Inscription<br /><strong>{formatDateFr(player.created_at)}</strong></div>
         </div>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+          <button className="btn btn-danger btn-sm" onClick={() => setResetTarget({ id: player.id, status: "available", used_at: null, montant_panier: null, coupon: { id: "", title: "ce joueur", description: "", end_date: "" } })}>
+            Supprimer ce joueur
+          </button>
+        </div>
       </div>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
-        <button className="btn btn-danger btn-sm" onClick={() => setConfirmDelete(true)}>
-          Supprimer ce joueur
-        </button>
-      </div>
+
       <h3 className="section-title mt-24">Coupons du joueur</h3>
       <div className="coupons-grid">
-        {coupons.length === 0 && (
-          <div className="empty-state">Aucun coupon attribue.</div>
-        )}
+        {coupons.length === 0 && <div className="empty-state">Aucun coupon attribue.</div>}
         {coupons.map((pc, i) => {
           const displayStatus = computeDisplayStatus(pc.status, pc.coupon.end_date)
           return (
@@ -125,40 +129,70 @@ export function AdminPlayerPage() {
               {pc.used_at ? (
                 <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", paddingLeft: 4 }}>
                   Valide le {formatDateTimeFr(pc.used_at)}
+                  {pc.montant_panier ? " · Panier : " + pc.montant_panier.toFixed(2) + " euros" : ""}
                 </div>
               ) : null}
-              {displayStatus === "available" ? (
-                <button
-                  className="btn btn-primary btn-sm"
-                  style={{ alignSelf: "flex-start" }}
-                  onClick={() => setConfirmTarget(pc)}
-                >
-                  Valider
-                </button>
-              ) : null}
+              <div style={{ display: "flex", gap: 8 }}>
+                {displayStatus === "available" ? (
+                  <button className="btn btn-primary btn-sm" onClick={() => setConfirmTarget(pc)}>
+                    Valider l utilisation
+                  </button>
+                ) : null}
+                {displayStatus === "used" ? (
+                  <button className="btn btn-secondary btn-sm" onClick={() => setResetTarget(pc)}>
+                    Remettre en disponible
+                  </button>
+                ) : null}
+              </div>
             </div>
           )
         })}
       </div>
-      {confirmDelete ? (
-        <ConfirmModal
-          title="Supprimer ce joueur ?"
-          message={"Confirmer la suppression de " + player.first_name + " " + player.last_name + " ? Tous ses coupons seront egalement supprimes. Cette action est irreversible."}
-          confirmLabel="Supprimer definitivement"
-          onConfirm={handleDeletePlayer}
-          onCancel={() => setConfirmDelete(false)}
-          busy={validating}
-        />
-      ) : null}
+
       {confirmTarget ? (
-        <ConfirmModal
-          title="Valider ce coupon ?"
-          message="Confirmer cette action ? Elle est definitive."
-          confirmLabel="Valider"
-          onConfirm={handleValidate}
-          onCancel={() => setConfirmTarget(null)}
-          busy={validating}
-        />
+        <div className="modal-overlay" onClick={() => { setConfirmTarget(null); setMontantPanier("") }}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h3>Valider ce coupon ?</h3>
+            <p style={{ fontWeight: 700, color: "var(--navy)", marginBottom: 16 }}>{confirmTarget.coupon.title}</p>
+            <div className="field">
+              <label>Montant du panier (euros)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={montantPanier}
+                onChange={(e) => setMontantPanier(e.target.value)}
+                placeholder="Ex: 85.00"
+                autoFocus
+              />
+              <div className="field-hint">Optionnel — permet de calculer le CA reel dans les performances</div>
+            </div>
+            <p style={{ fontSize: "0.82rem", color: "var(--grey-text)", marginBottom: 16 }}>
+              Cette action est definitive. Tu pourras la corriger avec le bouton Remettre en disponible si besoin.
+            </p>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => { setConfirmTarget(null); setMontantPanier("") }} disabled={validating}>Annuler</button>
+              <button className="btn btn-primary" onClick={handleValidate} disabled={validating}>
+                {validating ? "Validation..." : "Valider"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {resetTarget && resetTarget.coupon.id !== "" ? (
+        <div className="modal-overlay" onClick={() => setResetTarget(null)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h3>Remettre en disponible ?</h3>
+            <p>Le coupon <strong>{resetTarget.coupon.title}</strong> sera remis en statut Disponible. Le montant du panier enregistre sera efface.</p>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setResetTarget(null)} disabled={validating}>Annuler</button>
+              <button className="btn btn-danger" onClick={handleReset} disabled={validating}>
+                {validating ? "En cours..." : "Confirmer"}
+              </button>
+            </div>
+          </div>
+        </div>
       ) : null}
     </AdminLayout>
   )
