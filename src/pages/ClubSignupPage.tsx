@@ -18,6 +18,10 @@ export function ClubSignupPage() {
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [newsletter, setNewsletter] = useState(true)
+  const [tab, setTab] = useState("new")
+  const [existingEmail, setExistingEmail] = useState("")
+  const [searching, setSearching] = useState(false)
+  const [searchError, setSearchError] = useState<string | null>(null)
 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -34,6 +38,25 @@ export function ClubSignupPage() {
     }
     loadClub()
   }, [slug])
+
+  async function handleFindPass(e: any) {
+    e.preventDefault()
+    setSearchError(null)
+    if (!existingEmail.trim() || !club) return
+    setSearching(true)
+    const { data } = await supabase
+      .from("players")
+      .select("id")
+      .eq("club_id", club.id)
+      .eq("email", existingEmail.trim().toLowerCase())
+      .maybeSingle()
+    if (data) {
+      navigate("/pass/" + data.id)
+    } else {
+      setSearchError("Aucun compte trouve avec cet email pour ce club. Verifie ton adresse ou inscris-toi.")
+    }
+    setSearching(false)
+  }
 
   async function handleSubmit(e: any) {
     e.preventDefault()
@@ -126,7 +149,36 @@ export function ClubSignupPage() {
           <h1>{club.name}</h1>
           <p>Inscris-toi pour debloquer tes coupons 3SETS reserves aux licencies de ton club.</p>
         </div>
-        <div className="card">
+        <div className="auth-tabs" style={{ marginBottom: 0, borderRadius: "14px 14px 0 0" }}>
+          <button className={tab === "new" ? "active" : ""} onClick={() => setTab("new")}>
+            Nouveau
+          </button>
+          <button className={tab === "existing" ? "active" : ""} onClick={() => setTab("existing")}>
+            Deja inscrit
+          </button>
+        </div>
+        <div className="card" style={{ borderRadius: "0 0 14px 14px", marginTop: 0 }}>
+          {tab === "existing" ? (
+            <form onSubmit={handleFindPass}>
+              <p style={{ color: "var(--grey-text)", fontSize: "0.88rem", marginBottom: 16 }}>
+                Entre ton adresse email pour retrouver ton pass et tes coupons.
+              </p>
+              {searchError ? <div className="form-error-banner">{searchError}</div> : null}
+              <div className="field">
+                <label>Ton adresse email</label>
+                <input
+                  type="email"
+                  value={existingEmail}
+                  onChange={(e) => setExistingEmail(e.target.value)}
+                  placeholder="jean.dupont@email.fr"
+                  autoComplete="email"
+                />
+              </div>
+              <button type="submit" className="btn btn-primary btn-block" disabled={searching}>
+                {searching ? "Recherche en cours..." : "Retrouver mon pass"}
+              </button>
+            </form>
+          ) : (
           <form onSubmit={handleSubmit}>
             {error ? <div className="form-error-banner">{error}</div> : null}
             <div className="field">
@@ -169,6 +221,7 @@ export function ClubSignupPage() {
               {submitting ? "Inscription en cours..." : "Je m inscris et je recupere mes coupons"}
             </button>
           </form>
+          )}
         </div>
       </div>
     </div>
