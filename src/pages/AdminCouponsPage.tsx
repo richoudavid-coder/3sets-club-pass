@@ -93,33 +93,57 @@ export function AdminCouponsPage() {
 
   async function handleAttributeAll(coupon: any) {
     setFeedback(null)
-    // Recuperer tous les joueurs du sport concerne
-    const { data: players } = await supabase
+    setError(null)
+
+    // Recuperer tous les clubs qui proposent ce sport (sport principal OU dans le tableau sports)
+    const { data: clubs } = await supabase
+      .from("clubs")
+      .select("id, sport, sports")
+
+    const eligibleClubIds = (clubs || [])
+      .filter((club: any) => {
+        const clubSports = club.sports && club.sports.length > 0 ? club.sports : [club.sport]
+        return clubSports.includes(coupon.sport)
+      })
+      .map((club: any) => club.id)
+
+    if (eligibleClubIds.length === 0) {
+      setFeedback("Aucun club trouve pour ce sport.")
+      return
+    }
+
+    // Recuperer tous les joueurs de ces clubs
+    const { data: players, error: playersError } = await supabase
       .from("players")
       .select("id")
-      .eq("sport", coupon.sport)
+      .in("club_id", eligibleClubIds)
 
-    if (!players || players.length === 0) {
+    if (playersError || !players || players.length === 0) {
       setFeedback("Aucun joueur trouve pour ce sport.")
       return
     }
 
-    // Attribuer le coupon a tous les joueurs qui ne l'ont pas encore
+    // Attribuer le coupon a tous ces joueurs (ignorer les doublons)
     const rows = players.map((p: any) => ({
       player_id: p.id,
       coupon_id: coupon.id,
       status: "available",
     }))
 
-    const { error } = await supabase
-      .from("player_coupons")
-      .upsert(rows, { onConflict: "player_id,coupon_id", ignoreDuplicates: true })
-
-    if (error) {
-      setFeedback("Erreur lors de l attribution.")
-    } else {
-      setFeedback("Coupon attribue a tous les joueurs de " + SPORT_LABELS[coupon.sport as keyof typeof SPORT_LABELS] + " avec succes.")
+    // Inserer par lots de 50 pour eviter les timeouts
+    let totalInserted = 0
+    for (let i = 0; i < rows.length; i += 50) {
+      const batch = rows.slice(i, i + 50)
+      const { error } = await supabase
+        .from("player_coupons")
+        .upsert(batch, { onConflict: "player_id,coupon_id", ignoreDuplicates: true })
+      if (!error) totalInserted += batch.length
     }
+
+    setFeedback(
+      "Coupon attribue a " + totalInserted + " joueur(s) de " +
+      SPORT_LABELS[coupon.sport as keyof typeof SPORT_LABELS] + " avec succes."
+    )
     loadCoupons()
   }
 
