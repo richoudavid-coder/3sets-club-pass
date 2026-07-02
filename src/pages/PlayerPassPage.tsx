@@ -48,6 +48,7 @@ export function PlayerPassPage() {
             description: coupon.description,
             terms: coupon.terms,
             endDate: coupon.end_date,
+            sport: coupon.sport,
             status: computeDisplayStatus(pc.status, coupon.end_date),
             usedAt: pc.used_at,
           }
@@ -106,6 +107,7 @@ export function PlayerPassPage() {
               terms={c.terms}
               endDate={c.endDate}
               status={c.status}
+              sport={c.sport}
             />
           ))}
         </div>

@@ -72,6 +72,7 @@ export interface PlayerCouponView {
   description: string
   terms: string
   endDate: string
+  sport?: string
   status: CouponStatus
   usedAt: string | null
 }

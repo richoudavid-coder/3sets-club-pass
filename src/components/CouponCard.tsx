@@ -8,6 +8,7 @@ interface CouponCardProps {
   endDate: string
   status: CouponStatus
   index?: number
+  sport?: string
 }
 
 function extractHighlight(title: string): { highlight: string; rest: string } {
@@ -19,13 +20,40 @@ function extractHighlight(title: string): { highlight: string; rest: string } {
   return { highlight: "", rest: title }
 }
 
-export function CouponCard({ title, description, terms, endDate, status, index }: CouponCardProps) {
+export function CouponCard({ title, description, terms, endDate, status, index, sport }: CouponCardProps) {
   const { highlight, rest } = extractHighlight(title)
   const num = index !== undefined ? String(index + 1).padStart(2, "0") : null
 
+  const sportLabel = sport ? {
+    tennis: "TENNIS",
+    badminton: "BADMINTON",
+    padel: "PADEL",
+    "tennis-de-table": "TENNIS DE TABLE",
+    pickleball: "PICKLEBALL",
+  }[sport] || sport.toUpperCase() : null
+
   return (
-    <div className={"cpv2-card cpv2-card--" + status}>
-      <div className="cpv2-card__top">
+    <div className={"cpv2-card cpv2-card--" + status} style={{ position: "relative", overflow: "hidden" }}>
+      {sportLabel ? (
+        <div style={{
+          position: "absolute",
+          left: -28,
+          top: "50%",
+          transform: "translateY(-50%) rotate(-90deg)",
+          background: "var(--orange)",
+          color: "white",
+          fontSize: "0.55rem",
+          fontWeight: 900,
+          letterSpacing: "0.15em",
+          padding: "3px 20px",
+          whiteSpace: "nowrap",
+          zIndex: 2,
+          fontFamily: "var(--font-display)",
+        }}>
+          {sportLabel}
+        </div>
+      ) : null}
+      <div className="cpv2-card__top" style={{ paddingLeft: sport ? 24 : undefined }}>
         <div className="cpv2-card__left">
           {highlight ? (
             <>

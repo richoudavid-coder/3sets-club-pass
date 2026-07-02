@@ -12,7 +12,7 @@ interface PlayerCouponDetail {
   status: "available" | "used" | "expired"
   used_at: string | null
   montant_panier: number | null
-  coupon: { id: string; title: string; description: string; end_date: string }
+  coupon: { id: string; title: string; description: string; end_date: string; sport?: string }
 }
 
 export function AdminPlayerPage() {
@@ -36,7 +36,7 @@ export function AdminPlayerPage() {
     setPlayer(playerData as Player & { club: Club })
     const { data: pcData } = await supabase
       .from("player_coupons")
-      .select("id, status, used_at, montant_panier, coupon:coupons(id, title, description, end_date)")
+      .select("id, status, used_at, montant_panier, coupon:coupons(id, title, description, end_date, sport)")
       .eq("player_id", playerId).order("created_at", { ascending: true })
     setCoupons((pcData ?? []) as unknown as PlayerCouponDetail[])
     setLoading(false)
