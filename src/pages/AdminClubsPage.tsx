@@ -1,54 +1,53 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { QRCodeCanvas } from 'qrcode.react'
-import { AdminLayout } from './AdminLayout'
-import { Loader } from '../components/Loader'
-import { ConfirmModal } from '../components/ConfirmModal'
-import { supabase, APP_URL } from '../lib/supabase'
-import { slugify } from '../lib/slugify'
-import { SPORT_LABELS, type Club, type Sport } from '../types'
+import { useEffect, useState, type FormEvent } from "react"
+import { QRCodeCanvas } from "qrcode.react"
+import { AdminLayout } from "./AdminLayout"
+import { Loader } from "../components/Loader"
+import { ConfirmModal } from "../components/ConfirmModal"
+import { supabase, APP_URL } from "../lib/supabase"
+import { slugify } from "../lib/slugify"
+import { SPORT_LABELS } from "../types"
+
+const ALL_SPORTS = ["tennis", "badminton", "padel", "tennis-de-table"]
 
 function downloadQrCode(containerId: string, fileName: string) {
   const container = document.getElementById(containerId)
-  const canvas = container ? container.querySelector('canvas') : null
+  const canvas = container ? container.querySelector("canvas") : null
   if (!canvas) return
-  const url = canvas.toDataURL('image/png')
-  const link = document.createElement('a')
+  const url = canvas.toDataURL("image/png")
+  const link = document.createElement("a")
   link.href = url
   link.download = fileName
   link.click()
 }
 
 export function AdminClubsPage() {
-  const [clubs, setClubs] = useState<Club[]>([])
+  const [clubs, setClubs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-
-  const [name, setName] = useState('')
-  const [slug, setSlug] = useState('')
+  const [name, setName] = useState("")
+  const [slug, setSlug] = useState("")
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
-  const [sports, setSports] = useState<string[]>(['tennis'])
+  const [selectedSports, setSelectedSports] = useState<string[]>(["tennis"])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<string | null>(null)
-
-  const [deleteTarget, setDeleteTarget] = useState<Club | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<any>(null)
   const [deleting, setDeleting] = useState(false)
 
   async function loadClubs() {
     setLoading(true)
-    const result = await supabase.from('clubs').select('*').order('sport', { ascending: true }).order('name', { ascending: true })
-    setClubs((result.data || []) as Club[])
+    const result = await supabase
+      .from("clubs").select("*")
+      .order("sport", { ascending: true })
+      .order("name", { ascending: true })
+    setClubs(result.data || [])
     setLoading(false)
   }
 
-  useEffect(() => {
-    loadClubs()
-  }, [])
+  useEffect(() => { loadClubs() }, [])
 
   function handleNameChange(value: string) {
     setName(value)
-    if (!slugManuallyEdited) {
-      setSlug(slugify(value))
-    }
+    if (!slugManuallyEdited) setSlug(slugify(value))
   }
 
   function handleSlugChange(value: string) {
@@ -56,81 +55,77 @@ export function AdminClubsPage() {
     setSlug(slugify(value))
   }
 
+  function toggleSport(sport: string) {
+    setSelectedSports((prev) =>
+      prev.includes(sport) ? prev.filter((s) => s !== sport) : [...prev, sport]
+    )
+  }
+
   function buildUrl(clubSlug: string) {
-    return APP_URL.replace(/\/$/, '') + '/club/' + clubSlug
+    return APP_URL.replace(/\/$/, "") + "/club/" + clubSlug
   }
 
   async function handleCreateClub(e: FormEvent) {
     e.preventDefault()
     setError(null)
     setFeedback(null)
-
     const cleanName = name.trim()
     const cleanSlug = slugify(slug)
-
     if (!cleanName || !cleanSlug) {
-      setError('Merci de renseigner un nom de club et un identifiant (slug).')
+      setError("Merci de renseigner un nom et un identifiant.")
       return
     }
-
+    if (selectedSports.length === 0) {
+      setError("Merci de selectionner au moins un sport.")
+      return
+    }
     setSubmitting(true)
-
-    const result = await supabase.from('clubs').insert({
+    const { error: insertError } = await supabase.from("clubs").insert({
       name: cleanName,
       slug: cleanSlug,
-      sport: sports[0] || 'tennis',
-      sports: sports,
+      sport: selectedSports[0],
+      sports: selectedSports,
       active: true,
     })
-
-    if (result.error) {
-      if (result.error.code === '23505') {
-        setError('Cet identifiant (slug) est deja utilise par un autre club. Choisis-en un different.')
+    if (insertError) {
+      if (insertError.code === "23505") {
+        setError("Cet identifiant est deja utilise. Choisis-en un different.")
       } else {
-        setError('Une erreur est survenue lors de la creation du club. Reessaie dans un instant.')
+        setError("Erreur lors de la creation du club.")
       }
       setSubmitting(false)
       return
     }
-
-    setFeedback('Club "' + cleanName + '" cree avec succes. Son QR code est pret ci-dessous.')
-    setName('')
-    setSlug('')
+    setFeedback("Club " + cleanName + " cree avec succes.")
+    setName("")
+    setSlug("")
     setSlugManuallyEdited(false)
+    setSelectedSports(["tennis"])
     setSubmitting(false)
     loadClubs()
   }
 
-  async function toggleActive(club: Club) {
+  async function toggleActive(club: any) {
     setFeedback(null)
-    await supabase.from('clubs').update({ active: !club.active }).eq('id', club.id)
+    await supabase.from("clubs").update({ active: !club.active }).eq("id", club.id)
     loadClubs()
   }
 
   async function handleDeleteClub() {
     if (!deleteTarget) return
     setDeleting(true)
-
-    const result = await supabase.from('clubs').delete().eq('id', deleteTarget.id)
-
-    if (result.error) {
-      setError('Impossible de supprimer ce club pour le moment. Reessaie dans un instant.')
+    const { error: deleteError } = await supabase.from("clubs").delete().eq("id", deleteTarget.id)
+    if (deleteError) {
+      setError("Impossible de supprimer ce club.")
     } else {
-      setFeedback('Club "' + deleteTarget.name + '" supprime, ainsi que ses joueurs et coupons associes.')
+      setFeedback("Club " + deleteTarget.name + " supprime.")
     }
-
     setDeleteTarget(null)
     setDeleting(false)
     loadClubs()
   }
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <Loader label="Chargement des clubs..." />
-      </AdminLayout>
-    )
-  }
+  if (loading) return <AdminLayout><Loader label="Chargement des clubs..." /></AdminLayout>
 
   return (
     <AdminLayout>
@@ -142,56 +137,35 @@ export function AdminClubsPage() {
 
       <div className="card mt-24">
         <h3 className="section-title">Ajouter un nouveau club</h3>
-
         <form onSubmit={handleCreateClub}>
           {error ? <div className="form-error-banner">{error}</div> : null}
-
           <div className="field">
             <label>Nom du club</label>
-            <input
-              value={name}
-              onChange={(e) => handleNameChange(e.target.value)}
-              placeholder="Tennis Club de Plouzane"
-            />
+            <input value={name} onChange={(e) => handleNameChange(e.target.value)} placeholder="Tennis Club de Plouzane" />
           </div>
-
           <div className="field">
             <label>Identifiant URL (slug)</label>
-            <input
-              value={slug}
-              onChange={(e) => handleSlugChange(e.target.value)}
-              placeholder="tc-plouzane"
-            />
-            <div className="field-hint">
-              Genere automatiquement depuis le nom. Utilise dans l adresse : {buildUrl(slug || '...')}
-            </div>
+            <input value={slug} onChange={(e) => handleSlugChange(e.target.value)} placeholder="tc-plouzane" />
+            <div className="field-hint">URL : {buildUrl(slug || "...")}</div>
           </div>
-
           <div className="field">
-            <label>Sports proposes</label>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
-              {Object.keys(SPORT_LABELS).map((key) => (
-                <label key={key} style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 400, cursor: "pointer" }}>
+            <label>Sports proposes (cochez tout ce qui s'applique)</label>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
+              {ALL_SPORTS.map((sp) => (
+                <label key={sp} style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 400, cursor: "pointer", fontSize: "0.95rem" }}>
                   <input
                     type="checkbox"
-                    checked={sports.includes(key)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSports([...sports, key])
-                      } else {
-                        setSports(sports.filter((s) => s !== key))
-                      }
-                    }}
-                    style={{ width: 16, height: 16, accentColor: "var(--orange)" }}
+                    checked={selectedSports.includes(sp)}
+                    onChange={() => toggleSport(sp)}
+                    style={{ width: 18, height: 18, accentColor: "var(--orange)", flexShrink: 0 }}
                   />
-                  {SPORT_LABELS[key as keyof typeof SPORT_LABELS]}
+                  {SPORT_LABELS[sp as keyof typeof SPORT_LABELS]}
                 </label>
               ))}
             </div>
           </div>
-
           <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? 'Creation en cours...' : 'Creer le club'}
+            {submitting ? "Creation en cours..." : "Creer le club"}
           </button>
         </form>
       </div>
@@ -201,65 +175,46 @@ export function AdminClubsPage() {
       <div className="qr-grid">
         {clubs.map((club) => {
           const url = buildUrl(club.slug)
-          const containerId = 'qr-' + club.id
+          const containerId = "qr-" + club.id
+          const clubSports = club.sports && club.sports.length > 0 ? club.sports : [club.sport]
           return (
             <div className="qr-card" key={club.id} style={{ opacity: club.active ? 1 : 0.55 }}>
-              <div className="qr-card__sport">{SPORT_LABELS[club.sport]}</div>
+              <div className="qr-card__sport">
+                {clubSports.map((s: string) => SPORT_LABELS[s as keyof typeof SPORT_LABELS]).join(" · ")}
+              </div>
               <div className="qr-card__name">{club.name}</div>
-
               {!club.active ? (
-                <div
-                  style={{
-                    fontSize: '0.74rem',
-                    fontWeight: 700,
-                    color: 'var(--danger)',
-                    marginBottom: 10,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.04em',
-                  }}
-                >
+                <div style={{ fontSize: "0.74rem", fontWeight: 700, color: "var(--danger)", marginBottom: 10, textTransform: "uppercase" }}>
                   Desactive
                 </div>
               ) : null}
-
               <div className="qr-card__canvas-wrap" id={containerId}>
                 <QRCodeCanvas value={url} size={140} level="M" />
               </div>
               <div className="qr-card__url">{url}</div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <button
-                  className="btn btn-secondary btn-sm btn-block"
-                  onClick={() => downloadQrCode(containerId, 'qrcode-' + club.slug + '.png')}
-                >
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <button className="btn btn-secondary btn-sm btn-block" onClick={() => downloadQrCode(containerId, "qrcode-" + club.slug + ".png")}>
                   Telecharger le PNG
                 </button>
-                <button
-                  className="btn btn-secondary btn-sm btn-block"
-                  onClick={() => toggleActive(club)}
-                >
-                  {club.active ? 'Desactiver' : 'Reactiver'}
+                <button className="btn btn-secondary btn-sm btn-block" onClick={() => toggleActive(club)}>
+                  {club.active ? "Desactiver" : "Reactiver"}
                 </button>
-                <button
-                  className="btn btn-danger btn-sm btn-block"
-                  onClick={() => setDeleteTarget(club)}
-                >
+                <button className="btn btn-danger btn-sm btn-block" onClick={() => setDeleteTarget(club)}>
                   Supprimer
                 </button>
               </div>
             </div>
           )
         })}
-
         {clubs.length === 0 ? (
-          <div className="empty-state">Aucun club pour le moment. Cree le premier ci-dessus.</div>
+          <div className="empty-state">Aucun club pour le moment.</div>
         ) : null}
       </div>
 
       {deleteTarget ? (
         <ConfirmModal
           title="Supprimer ce club ?"
-          message={'Confirmer la suppression de "' + deleteTarget.name + '" ? Tous les joueurs inscrits a ce club et leurs coupons seront egalement supprimes definitivement. Cette action est irreversible.'}
+          message={"Confirmer la suppression de " + deleteTarget.name + " ? Tous les joueurs et coupons associes seront supprimes. Action irreversible."}
           confirmLabel="Supprimer definitivement"
           onConfirm={handleDeleteClub}
           onCancel={() => setDeleteTarget(null)}
