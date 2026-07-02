@@ -11,6 +11,7 @@ import { AdminClubsPage } from "./pages/AdminClubsPage"
 import { AdminCouponsPage } from "./pages/AdminCouponsPage"
 import { AdminPerformancesPage } from "./pages/AdminPerformancesPage"
 import { AdminNotificationsPage } from "./pages/AdminNotificationsPage"
+import { OffrePage } from "./pages/OffrePage"
 import { ResetPasswordPage } from "./pages/ResetPasswordPage"
 import { NewPasswordPage } from "./pages/NewPasswordPage"
 import { ProtectedAdminRoute } from "./components/ProtectedAdminRoute"
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/club/:slug" element={<ClubSignupPage />} />
           <Route path="/pass/:playerId" element={<PlayerPassPage />} />
+          <Route path="/offre/:notifId" element={<OffrePage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboardPage /></ProtectedAdminRoute>} />
           <Route path="/admin/player/:playerId" element={<ProtectedAdminRoute><AdminPlayerPage /></ProtectedAdminRoute>} />

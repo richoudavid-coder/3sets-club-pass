@@ -22,12 +22,13 @@ export function AdminNotificationsPage() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
   const [deleting, setDeleting] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [coupons, setCoupons] = useState<any[]>([])
   const [submitting, setSubmitting] = useState(false)
 
   const emptyForm = {
     title: "", message: "", color: "orange",
     start_date: new Date().toISOString().split("T")[0],
-    end_date: "", image_url: "", active: true
+    end_date: "", image_url: "", active: true, description: "", coupon_id: ""
   }
   const [form, setForm] = useState(emptyForm)
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -40,7 +41,10 @@ export function AdminNotificationsPage() {
     setLoading(false)
   }
 
-  useEffect(() => { loadNotifications() }, [])
+  useEffect(() => {
+    loadNotifications()
+    supabase.from("coupons").select("id, title, sport").eq("active", true).order("sport").then(({ data }) => setCoupons(data || []))
+  }, [])
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -77,6 +81,8 @@ export function AdminNotificationsPage() {
       end_date: form.end_date,
       image_url: imageUrl,
       active: form.active,
+      description: form.description || null,
+      coupon_id: form.coupon_id || null,
     }
     const { error: insertError } = await supabase.from("notifications").insert(payload)
     if (insertError) { setError("Erreur lors de la creation."); setSubmitting(false); return }
@@ -140,6 +146,20 @@ export function AdminNotificationsPage() {
                   </label>
                 ))}
               </div>
+            </div>
+            <div className="field">
+              <label>Description detaillee (optionnel)</label>
+              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Decrivez l operation en detail..." rows={3} style={{ width: "100%", padding: "10px 14px", border: "1.5px solid var(--grey-line)", borderRadius: 8, fontFamily: "inherit", fontSize: "1rem", resize: "vertical" }} />
+            </div>
+            <div className="field">
+              <label>Coupon lie (optionnel)</label>
+              <select value={form.coupon_id} onChange={(e) => setForm({ ...form, coupon_id: e.target.value })}>
+                <option value="">-- Aucun coupon lie --</option>
+                {coupons.map((c) => (
+                  <option key={c.id} value={c.id}>{c.title}</option>
+                ))}
+              </select>
+              <div className="field-hint">Le client pourra voir ce coupon en cliquant sur la notification</div>
             </div>
             <div className="field">
               <label>Image (optionnel)</label>
