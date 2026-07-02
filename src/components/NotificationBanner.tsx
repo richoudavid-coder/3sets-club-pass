@@ -11,7 +11,8 @@ const COLOR_STYLES: Record<string, { bg: string; color: string }> = {
 
 export function NotificationBanner() {
   const [notifications, setNotifications] = useState<any[]>([])
-  const [dismissed, setDismissed] = useState<string[]>([])
+  const [current, setCurrent] = useState(0)
+  const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -28,43 +29,93 @@ export function NotificationBanner() {
     load()
   }, [])
 
-  const visible = notifications.filter((n) => !dismissed.includes(n.id))
+  if (dismissed || notifications.length === 0) return null
 
-  if (visible.length === 0) return null
+  const notif = notifications[current]
+  const style = COLOR_STYLES[notif.color] || COLOR_STYLES.orange
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10, margin: "16px 0" }}>
-      {visible.map((notif) => {
-        const style = COLOR_STYLES[notif.color] || COLOR_STYLES.orange
-        return (
-          <div key={notif.id} style={{
-            background: style.bg,
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(10,31,68,0.7)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 20,
+        zIndex: 100,
+      }}
+      onClick={() => setDismissed(true)}
+    >
+      <div
+        style={{
+          background: "white",
+          borderRadius: 16,
+          overflow: "hidden",
+          maxWidth: 420,
+          width: "100%",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+          animation: "fadeInUp 0.3s ease",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {notif.image_url ? (
+          <img
+            src={notif.image_url}
+            alt={notif.title}
+            style={{ width: "100%", maxHeight: 220, objectFit: "cover", display: "block" }}
+          />
+        ) : null}
+
+        <div style={{ background: style.bg, padding: "16px 20px" }}>
+          <div style={{
+            fontFamily: "Bebas Neue, var(--font-display)",
+            fontSize: "1.6rem",
+            letterSpacing: "0.04em",
             color: style.color,
-            borderRadius: 12,
-            overflow: "hidden",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-            position: "relative",
+            lineHeight: 1.1,
+            marginBottom: 6,
           }}>
-            {notif.image_url ? (
-              <img src={notif.image_url} alt={notif.title} style={{ width: "100%", maxHeight: 180, objectFit: "cover", display: "block" }} />
-            ) : null}
-            <div style={{ padding: "14px 16px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div style={{ fontFamily: "Bebas Neue, var(--font-display)", fontSize: "1.3rem", letterSpacing: "0.04em", marginBottom: 4 }}>
-                  {notif.title}
-                </div>
-                <button
-                  onClick={() => setDismissed((prev) => [...prev, notif.id])}
-                  style={{ background: "rgba(255,255,255,0.2)", border: "none", color: "white", borderRadius: "50%", width: 24, height: 24, cursor: "pointer", fontSize: "1rem", lineHeight: 1, flexShrink: 0, marginLeft: 8 }}
-                >
-                  x
-                </button>
-              </div>
-              <div style={{ fontSize: "0.88rem", opacity: 0.9, lineHeight: 1.4 }}>{notif.message}</div>
-            </div>
+            {notif.title}
           </div>
-        )
-      })}
+          <div style={{ fontSize: "0.92rem", color: style.color, opacity: 0.92, lineHeight: 1.4 }}>
+            {notif.message}
+          </div>
+        </div>
+
+        <div style={{ padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f4f6f8" }}>
+          {notifications.length > 1 ? (
+            <div style={{ display: "flex", gap: 6 }}>
+              {notifications.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrent(i)}
+                  style={{
+                    width: 8, height: 8, borderRadius: "50%", border: "none", cursor: "pointer",
+                    background: i === current ? "var(--orange)" : "var(--grey-line)",
+                  }}
+                />
+              ))}
+            </div>
+          ) : <div />}
+          <button
+            onClick={() => setDismissed(true)}
+            style={{
+              background: "var(--navy)",
+              color: "white",
+              border: "none",
+              borderRadius: 8,
+              padding: "8px 20px",
+              fontWeight: 700,
+              fontSize: "0.88rem",
+              cursor: "pointer",
+            }}
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
