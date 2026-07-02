@@ -25,9 +25,11 @@ export function PlayerPassPage() {
       setPlayer(playerData as Player & { club: Club })
       const { data: pcData } = await supabase
         .from('player_coupons').select('*, coupon:coupons(*)')
-        .eq('player_id', playerId).order('created_at', { ascending: true })
+        .eq('player_id', playerId)
+        .eq('coupon.active', true)
+        .order('created_at', { ascending: true })
       const views: PlayerCouponView[] = ((pcData ?? []) as any[])
-        .filter((pc) => pc.coupon)
+        .filter((pc) => pc.coupon && pc.coupon.active)
         .map((pc) => ({
           playerCouponId: pc.id,
           title: pc.coupon.title,
