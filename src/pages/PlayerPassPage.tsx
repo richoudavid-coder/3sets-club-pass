@@ -87,7 +87,7 @@ export function PlayerPassPage() {
           <h1>Bonjour {player.first_name}</h1>
           <div className="pass-greeting__meta">
             <span className="pass-greeting__tag">{player.club?.name ?? "Club"}</span>
-            <span className="pass-greeting__tag">{SPORT_LABELS[player.sport]}</span>
+            <span className="pass-greeting__tag">{SPORT_LABELS[player.sport as keyof typeof SPORT_LABELS]}</span>
           </div>
         </div>
         <p style={{ color: "var(--grey-text)", fontSize: "0.88rem", marginTop: 4 }}>
