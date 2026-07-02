@@ -32,6 +32,14 @@ export function CouponCard({ title, description, terms, endDate, status, index, 
     pickleball: "PICKLEBALL",
   }[sport] || sport.toUpperCase() : null
 
+  const sportColor = sport ? {
+    tennis: "#0a1f44",
+    badminton: "#1ea672",
+    padel: "#ff7a1a",
+    "tennis-de-table": "#d7263d",
+    pickleball: "#7c3aed",
+  }[sport] || "#0a1f44" : "#ff7a1a"
+
   return (
     <div className={"cpv2-card cpv2-card--" + status} style={{ position: "relative", overflow: "hidden" }}>
       {sportLabel ? (
@@ -40,7 +48,7 @@ export function CouponCard({ title, description, terms, endDate, status, index, 
           left: -28,
           top: "50%",
           transform: "translateY(-50%) rotate(-90deg)",
-          background: "var(--orange)",
+          background: sportColor,
           color: "white",
           fontSize: "0.55rem",
           fontWeight: 900,
