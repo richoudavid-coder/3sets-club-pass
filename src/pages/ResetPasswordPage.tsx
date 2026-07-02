@@ -16,7 +16,7 @@ export function ResetPasswordPage() {
     const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: window.location.origin + "/nouveau-mot-de-passe",
     })
-    if (err) { setError("Une erreur est survenue. Verifie que cet email est bien associe a un compte.") }
+    if (err) { setError("Erreur: " + err.message) }
     else { setSent(true) }
     setLoading(false)
   }
