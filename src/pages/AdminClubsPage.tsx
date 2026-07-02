@@ -32,6 +32,10 @@ export function AdminClubsPage() {
   const [feedback, setFeedback] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
   const [deleting, setDeleting] = useState(false)
+  const [editingClub, setEditingClub] = useState<any>(null)
+  const [editSports, setEditSports] = useState<string[]>([])
+  const [editName, setEditName] = useState("")
+  const [saving, setSaving] = useState(false)
 
   async function loadClubs() {
     setLoading(true)
@@ -108,6 +112,31 @@ export function AdminClubsPage() {
   async function toggleActive(club: any) {
     setFeedback(null)
     await supabase.from("clubs").update({ active: !club.active }).eq("id", club.id)
+    loadClubs()
+  }
+
+  function startEditClub(club: any) {
+    setEditingClub(club)
+    setEditName(club.name)
+    setEditSports(club.sports && club.sports.length > 0 ? club.sports : [club.sport])
+  }
+
+  async function handleSaveClub() {
+    if (!editingClub) return
+    if (editSports.length === 0) { setError("Selectionne au moins un sport."); return }
+    setSaving(true)
+    const { error: updateError } = await supabase.from("clubs").update({
+      name: editName.trim(),
+      sport: editSports[0],
+      sports: editSports,
+    }).eq("id", editingClub.id)
+    if (updateError) {
+      setError("Erreur lors de la modification.")
+    } else {
+      setFeedback("Club modifie avec succes.")
+      setEditingClub(null)
+    }
+    setSaving(false)
     loadClubs()
   }
 
@@ -196,6 +225,9 @@ export function AdminClubsPage() {
                 <button className="btn btn-secondary btn-sm btn-block" onClick={() => downloadQrCode(containerId, "qrcode-" + club.slug + ".png")}>
                   Telecharger le PNG
                 </button>
+                <button className="btn btn-secondary btn-sm btn-block" onClick={() => startEditClub(club)}>
+                  Modifier
+                </button>
                 <button className="btn btn-secondary btn-sm btn-block" onClick={() => toggleActive(club)}>
                   {club.active ? "Desactiver" : "Reactiver"}
                 </button>
@@ -211,6 +243,40 @@ export function AdminClubsPage() {
         ) : null}
       </div>
 
+      {editingClub ? (
+        <div className="modal-overlay" onClick={() => setEditingClub(null)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 460 }}>
+            <h3>Modifier le club</h3>
+            {error ? <div className="form-error-banner">{error}</div> : null}
+            <div className="field">
+              <label>Nom du club</label>
+              <input value={editName} onChange={(e) => setEditName(e.target.value)} />
+            </div>
+            <div className="field">
+              <label>Sports proposes</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
+                {ALL_SPORTS.map((sp) => (
+                  <label key={sp} style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 400, cursor: "pointer", fontSize: "0.95rem" }}>
+                    <input
+                      type="checkbox"
+                      checked={editSports.includes(sp)}
+                      onChange={() => setEditSports((prev) => prev.includes(sp) ? prev.filter((s) => s !== sp) : [...prev, sp])}
+                      style={{ width: 18, height: 18, accentColor: "var(--orange)", flexShrink: 0 }}
+                    />
+                    {SPORT_LABELS[sp as keyof typeof SPORT_LABELS]}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setEditingClub(null)} disabled={saving}>Annuler</button>
+              <button className="btn btn-primary" onClick={handleSaveClub} disabled={saving}>
+                {saving ? "Sauvegarde..." : "Enregistrer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       {deleteTarget ? (
         <ConfirmModal
           title="Supprimer ce club ?"
