@@ -31,11 +31,61 @@ export function NotificationBanner() {
     load()
   }, [])
 
-  if (dismissed || notifications.length === 0) return null
+  if (notifications.length === 0) return null
 
   const notif = notifications[current]
   const style = COLOR_STYLES[notif.color] || COLOR_STYLES.orange
   const isClickable = notif.description || notif.coupon_id
+
+  // Apres fermeture : afficher un petit bouton raccourci pour chaque notif
+  if (dismissed) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, margin: "16px 0" }}>
+        {notifications.map((n) => {
+          const s = COLOR_STYLES[n.color] || COLOR_STYLES.orange
+          return (
+            <button
+              key={n.id}
+              onClick={() => navigate("/offre/" + n.id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                background: s.bg,
+                color: s.color,
+                border: "none",
+                borderRadius: 12,
+                padding: "12px 16px",
+                cursor: "pointer",
+                textAlign: "left",
+                width: "100%",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+              }}
+            >
+              {n.image_url ? (
+                <img src={n.image_url} alt="" style={{ width: 44, height: 44, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
+              ) : (
+                <div style={{ width: 44, height: 44, borderRadius: 8, background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem", flexShrink: 0 }}>
+                  🎾
+                </div>
+              )}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: "Bebas Neue, var(--font-display)", fontSize: "1.1rem", letterSpacing: "0.04em", lineHeight: 1.1 }}>
+                  {n.title}
+                </div>
+                <div style={{ fontSize: "0.75rem", opacity: 0.85, marginTop: 2 }}>
+                  {n.message.length > 50 ? n.message.slice(0, 50) + "..." : n.message}
+                </div>
+              </div>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, opacity: 0.8, flexShrink: 0 }}>
+                Voir →
+              </div>
+            </button>
+          )
+        })}
+      </div>
+    )
+  }
 
   return (
     <div
@@ -75,14 +125,7 @@ export function NotificationBanner() {
           style={{ background: style.bg, padding: "16px 20px", cursor: isClickable ? "pointer" : "default" }}
           onClick={() => { if (isClickable) { setDismissed(true); navigate("/offre/" + notif.id) } }}
         >
-          <div style={{
-            fontFamily: "Bebas Neue, var(--font-display)",
-            fontSize: "1.6rem",
-            letterSpacing: "0.04em",
-            color: style.color,
-            lineHeight: 1.1,
-            marginBottom: 6,
-          }}>
+          <div style={{ fontFamily: "Bebas Neue, var(--font-display)", fontSize: "1.6rem", letterSpacing: "0.04em", color: style.color, lineHeight: 1.1, marginBottom: 6 }}>
             {notif.title}
           </div>
           <div style={{ fontSize: "0.92rem", color: style.color, opacity: 0.92, lineHeight: 1.4 }}>
