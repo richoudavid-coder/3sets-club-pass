@@ -99,6 +99,23 @@ export function AdminDashboardPage() {
     })
   }, [players, clubFilter, sportFilter, search])
 
+  function exportNewsletterCsv() {
+    const subscribers = filteredPlayers.filter((p) => p.newsletter)
+    downloadCsv(
+      'newsletter-3sets.csv',
+      ['Prenom', 'Nom', 'Email', 'Telephone', 'Sport', 'Club', 'Inscription'],
+      subscribers.map((p) => [
+        p.first_name,
+        p.last_name,
+        p.email,
+        p.phone,
+        SPORT_LABELS[p.sport],
+        p.club?.name ?? '',
+        new Date(p.created_at).toLocaleDateString('fr-FR'),
+      ])
+    )
+  }
+
   function exportPlayersCsv() {
     downloadCsv(
       'joueurs-3sets-club-pass.csv',
@@ -152,6 +169,9 @@ export function AdminDashboardPage() {
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn btn-secondary btn-sm" onClick={exportPlayersCsv}>
             Exporter les joueurs CSV
+          </button>
+          <button className="btn btn-secondary btn-sm" onClick={exportNewsletterCsv}>
+            Exporter newsletter CSV
           </button>
           <button className="btn btn-secondary btn-sm" onClick={exportCouponsCsv}>
             Exporter les utilisations CSV

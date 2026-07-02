@@ -97,12 +97,33 @@ export function AdminPlayerPage() {
       {feedback ? <div className="form-success-banner">{feedback}</div> : null}
       <div className="card">
         <h2 style={{ marginBottom: 16 }}>{player.first_name} {player.last_name}</h2>
-        <div className="player-info-grid">
-          <div>Email<br /><strong>{player.email}</strong></div>
-          <div>Telephone<br /><strong>{player.phone}</strong></div>
-          <div>Club<br /><strong>{player.club?.name ?? "-"}</strong></div>
-          <div>Sport<br /><strong>{SPORT_LABELS[player.sport as keyof typeof SPORT_LABELS]}</strong></div>
-          <div>Inscription<br /><strong>{formatDateFr(player.created_at)}</strong></div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 4 }}>
+          <div style={{ gridColumn: "1 / -1" }}>
+            <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", fontWeight: 600, marginBottom: 3 }}>Email</div>
+            <strong style={{ fontSize: "0.95rem", wordBreak: "break-all" }}>{player.email}</strong>
+          </div>
+          <div>
+            <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", fontWeight: 600, marginBottom: 3 }}>Telephone</div>
+            <strong style={{ fontSize: "0.95rem" }}>{player.phone}</strong>
+          </div>
+          <div>
+            <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", fontWeight: 600, marginBottom: 3 }}>Inscription</div>
+            <strong style={{ fontSize: "0.95rem" }}>{formatDateFr(player.created_at)}</strong>
+          </div>
+          <div>
+            <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", fontWeight: 600, marginBottom: 3 }}>Club</div>
+            <strong style={{ fontSize: "0.95rem" }}>{player.club?.name ?? "-"}</strong>
+          </div>
+          <div>
+            <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", fontWeight: 600, marginBottom: 3 }}>Sport</div>
+            <strong style={{ fontSize: "0.95rem" }}>{SPORT_LABELS[player.sport as keyof typeof SPORT_LABELS]}</strong>
+          </div>
+          <div>
+            <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", fontWeight: 600, marginBottom: 3 }}>Newsletter</div>
+            <strong style={{ fontSize: "0.95rem", color: player.newsletter ? "var(--success)" : "var(--grey-text)" }}>
+              {player.newsletter ? "Acceptee" : "Refusee"}
+            </strong>
+          </div>
         </div>
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
           <button className="btn btn-danger btn-sm" onClick={() => setResetTarget({ id: player.id, status: "available", used_at: null, montant_panier: null, coupon: { id: "", title: "ce joueur", description: "", end_date: "" } })}>
