@@ -9,6 +9,7 @@ import { AdminPlayerPage } from "./pages/AdminPlayerPage"
 import { AdminQrCodesPage } from "./pages/AdminQrCodesPage"
 import { AdminClubsPage } from "./pages/AdminClubsPage"
 import { AdminCouponsPage } from "./pages/AdminCouponsPage"
+import { AdminPerformancesPage } from "./pages/AdminPerformancesPage"
 import { ResetPasswordPage } from "./pages/ResetPasswordPage"
 import { NewPasswordPage } from "./pages/NewPasswordPage"
 import { ProtectedAdminRoute } from "./components/ProtectedAdminRoute"
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/admin/clubs" element={<ProtectedAdminRoute><AdminClubsPage /></ProtectedAdminRoute>} />
           <Route path="/mot-de-passe-oublie" element={<ResetPasswordPage />} />
           <Route path="/nouveau-mot-de-passe" element={<NewPasswordPage />} />
+          <Route path="/admin/performances" element={<ProtectedAdminRoute><AdminPerformancesPage /></ProtectedAdminRoute>} />
           <Route path="/admin/coupons" element={<ProtectedAdminRoute><AdminCouponsPage /></ProtectedAdminRoute>} />
           <Route path="*" element={<div className="page-container text-center" style={{ paddingTop: 60 }}><h2>Page introuvable</h2></div>} />
         </Routes>

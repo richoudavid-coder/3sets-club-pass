@@ -19,7 +19,7 @@ export function AdminCouponsPage() {
   const emptyForm = {
     title: "", description: "", terms: "",
     sport: "tennis", club_id: null,
-    start_date: "2026-09-01", end_date: "2027-08-31", active: true
+    start_date: "2026-09-01", end_date: "2027-08-31", active: true, valeur_euros: 0
   }
   const [form, setForm] = useState(emptyForm)
 
@@ -43,6 +43,7 @@ export function AdminCouponsPage() {
       start_date: coupon.start_date,
       end_date: coupon.end_date,
       active: coupon.active,
+      valeur_euros: coupon.valeur_euros || 0,
     })
     setShowForm(true)
     setError(null)
@@ -75,6 +76,7 @@ export function AdminCouponsPage() {
       start_date: form.start_date,
       end_date: form.end_date,
       active: form.active,
+      valeur_euros: form.valeur_euros || 0,
     }
     if (editing) {
       const { error: updateError } = await supabase.from("coupons").update(payload).eq("id", editing)
@@ -199,6 +201,11 @@ export function AdminCouponsPage() {
               </select>
             </div>
             <div className="field">
+              <label>Valeur estimee du coupon (en euros)</label>
+              <input type="number" min="0" step="0.01" value={form.valeur_euros || 0} onChange={(e) => setForm({ ...form, valeur_euros: parseFloat(e.target.value) || 0 })} placeholder="Ex: 25.00" />
+              <div className="field-hint">Valeur moyenne de l avantage accorde (utilisee pour estimer le CA influence)</div>
+            </div>
+            <div className="field">
               <label>Date de debut</label>
               <input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
             </div>
@@ -228,6 +235,7 @@ export function AdminCouponsPage() {
               <th>Sport</th>
               <th>Debut</th>
               <th>Fin</th>
+              <th>Valeur</th>
               <th>Statut</th>
               <th></th>
             </tr>
@@ -239,6 +247,7 @@ export function AdminCouponsPage() {
                 <td>{SPORT_LABELS[coupon.sport as keyof typeof SPORT_LABELS]}</td>
                 <td>{formatDateFr(coupon.start_date)}</td>
                 <td>{formatDateFr(coupon.end_date)}</td>
+                <td>{coupon.valeur_euros ? coupon.valeur_euros + " €" : "-"}</td>
                 <td>
                   <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: coupon.active ? "var(--success-bg)" : "var(--neutral-bg)", color: coupon.active ? "var(--success)" : "var(--neutral)" }}>
                     {coupon.active ? "Actif" : "Inactif"}
