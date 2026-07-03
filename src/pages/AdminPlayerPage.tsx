@@ -23,6 +23,7 @@ export function AdminPlayerPage() {
   const [notFound, setNotFound] = useState(false)
   const [confirmTarget, setConfirmTarget] = useState<PlayerCouponDetail | null>(null)
   const [resetTarget, setResetTarget] = useState<PlayerCouponDetail | null>(null)
+  const [confirmDeletePlayer, setConfirmDeletePlayer] = useState(false)
   const [validating, setValidating] = useState(false)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [montantPanier, setMontantPanier] = useState("")
@@ -62,6 +63,19 @@ export function AdminPlayerPage() {
     setMontantPanier("")
     setValidating(false)
     await loadData()
+  }
+
+  async function handleDeletePlayer() {
+    if (!player) return
+    setValidating(true)
+    setFeedback(null)
+    const { error } = await supabase.from("players").delete().eq("id", player.id)
+    if (error) {
+      setFeedback("Erreur lors de la suppression du joueur.")
+      setValidating(false)
+    } else {
+      window.location.href = "/admin"
+    }
   }
 
   async function handleReset() {
@@ -126,7 +140,7 @@ export function AdminPlayerPage() {
           </div>
         </div>
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
-          <button className="btn btn-danger btn-sm" onClick={() => setResetTarget({ id: player.id, status: "available", used_at: null, montant_panier: null, coupon: { id: "", title: "ce joueur", description: "", end_date: "" } })}>
+          <button className="btn btn-danger btn-sm" onClick={() => setConfirmDeletePlayer(true)}>
             Supprimer ce joueur
           </button>
         </div>
@@ -201,6 +215,20 @@ export function AdminPlayerPage() {
         </div>
       ) : null}
 
+      {confirmDeletePlayer ? (
+        <div className="modal-overlay" onClick={() => setConfirmDeletePlayer(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h3>Supprimer ce joueur ?</h3>
+            <p>Confirmer la suppression de <strong>{player.first_name} {player.last_name}</strong> ? Tous ses coupons seront egalement supprimes. Cette action est irreversible.</p>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setConfirmDeletePlayer(false)} disabled={validating}>Annuler</button>
+              <button className="btn btn-danger" onClick={handleDeletePlayer} disabled={validating}>
+                {validating ? "Suppression..." : "Supprimer definitivement"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       {resetTarget && resetTarget.coupon.id !== "" ? (
         <div className="modal-overlay" onClick={() => setResetTarget(null)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
