@@ -79,7 +79,7 @@ export function CouponCard({ title, description, terms, endDate, status, index, 
       <div className="cpv2-card__bottom">
         <div className="cpv2-card__meta">
           <span className="cpv2-card__terms">{terms}</span>
-          <span className="cpv2-card__date">Valable jusqu au {formatDateFr(endDate)}</span>
+          <span className="cpv2-card__date">Valable jusqu'au {formatDateFr(endDate)}</span>
         </div>
         <span className={"cpv2-status cpv2-status--" + status}>{STATUS_LABELS[status]}</span>
       </div>
