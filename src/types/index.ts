@@ -1,6 +1,6 @@
 // Types métiers partagés de l'application 3SETS Club Pass
 
-export type Sport = 'tennis' | 'badminton' | 'padel' | 'tennis-de-table' | 'pickleball'
+export type Sport = 'tennis' | 'badminton' | 'padel' | 'tennis-de-table' | 'pickleball' | 'tous-sports' | 'tous-sports'
 
 export const SPORT_LABELS: Record<Sport, string> = {
   tennis: 'Tennis',
@@ -8,6 +8,8 @@ export const SPORT_LABELS: Record<Sport, string> = {
   padel: 'Padel',
   'tennis-de-table': 'Tennis de table',
   pickleball: 'Pickleball',
+  'tous-sports': 'Tous les sports',
+  'tous-sports': 'Tous les sports',
 }
 
 export type CouponStatus = 'available' | 'used' | 'expired'
