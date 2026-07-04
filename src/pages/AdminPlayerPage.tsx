@@ -55,9 +55,9 @@ export function AdminPlayerPage() {
       .update({ status: "used", used_at: new Date().toISOString(), montant_panier: montant })
       .eq("id", confirmTarget.id).eq("status", "available").select()
     if (error || !data || data.length === 0) {
-      setFeedback("Ce coupon ne peut pas etre valide.")
+      setFeedback("Ce coupon ne peut pas etre validé.")
     } else {
-      setFeedback("Coupon valide avec succes." + (montant ? " Panier : " + montant.toFixed(2) + " euros." : ""))
+      setFeedback("Coupon validé avec succès." + (montant ? " Panier : " + montant.toFixed(2) + " euros." : ""))
     }
     setConfirmTarget(null)
     setMontantPanier("")
@@ -89,7 +89,7 @@ export function AdminPlayerPage() {
     if (error) {
       setFeedback("Erreur lors de la remise a disponible.")
     } else {
-      setFeedback("Coupon remis en disponible avec succes.")
+      setFeedback("Coupon remis en disponible avec succès.")
     }
     setResetTarget(null)
     setValidating(false)
@@ -108,7 +108,7 @@ export function AdminPlayerPage() {
   return (
     <AdminLayout>
       <Link to="/admin" className="breadcrumb-link">&#8592; Retour au tableau de bord</Link>
-      {feedback ? <div className="form-success-banner">{feedback}</div> : null}
+      {feedback ? <div className="form-succèss-banner">{feedback}</div> : null}
       <div className="card">
         <h2 style={{ marginBottom: 16 }}>{player.first_name} {player.last_name}</h2>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 4 }}>
@@ -117,7 +117,7 @@ export function AdminPlayerPage() {
             <strong style={{ fontSize: "0.95rem", wordBreak: "break-all" }}>{player.email}</strong>
           </div>
           <div>
-            <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", fontWeight: 600, marginBottom: 3 }}>Telephone</div>
+            <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", fontWeight: 600, marginBottom: 3 }}>Téléphone</div>
             <strong style={{ fontSize: "0.95rem" }}>{player.phone}</strong>
           </div>
           <div>
@@ -134,7 +134,7 @@ export function AdminPlayerPage() {
           </div>
           <div>
             <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", fontWeight: 600, marginBottom: 3 }}>Newsletter</div>
-            <strong style={{ fontSize: "0.95rem", color: player.newsletter ? "var(--success)" : "var(--grey-text)" }}>
+            <strong style={{ fontSize: "0.95rem", color: player.newsletter ? "var(--succèss)" : "var(--grey-text)" }}>
               {player.newsletter ? "Acceptee" : "Refusee"}
             </strong>
           </div>
@@ -148,7 +148,7 @@ export function AdminPlayerPage() {
 
       <h3 className="section-title mt-24">Coupons du joueur</h3>
       <div className="coupons-grid">
-        {coupons.length === 0 && <div className="empty-state">Aucun coupon attribue.</div>}
+        {coupons.length === 0 && <div className="empty-state">Aucun coupon attribué.</div>}
         {coupons.map((pc, i) => {
           const displayStatus = computeDisplayStatus(pc.status, pc.coupon.end_date)
           return (
@@ -163,14 +163,14 @@ export function AdminPlayerPage() {
               />
               {pc.used_at ? (
                 <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", paddingLeft: 4 }}>
-                  Valide le {formatDateTimeFr(pc.used_at)}
+                  Validé le {formatDateTimeFr(pc.used_at)}
                   {pc.montant_panier ? " · Panier : " + pc.montant_panier.toFixed(2) + " euros" : ""}
                 </div>
               ) : null}
               <div style={{ display: "flex", gap: 8 }}>
                 {displayStatus === "available" ? (
                   <button className="btn btn-primary btn-sm" onClick={() => setConfirmTarget(pc)}>
-                    Valider l utilisation
+                    Validér l'utilisation
                   </button>
                 ) : null}
                 {displayStatus === "used" ? (
@@ -187,7 +187,7 @@ export function AdminPlayerPage() {
       {confirmTarget ? (
         <div className="modal-overlay" onClick={() => { setConfirmTarget(null); setMontantPanier("") }}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h3>Valider ce coupon ?</h3>
+            <h3>Validér ce coupon ?</h3>
             <p style={{ fontWeight: 700, color: "var(--navy)", marginBottom: 16 }}>{confirmTarget.coupon.title}</p>
             <div className="field">
               <label>Montant du panier (euros)</label>
@@ -200,15 +200,15 @@ export function AdminPlayerPage() {
                 placeholder="Ex: 85.00"
                 autoFocus
               />
-              <div className="field-hint">Optionnel — permet de calculer le CA reel dans les performances</div>
+              <div className="field-hint">Optionnel — permet de calculer le CA réel dans les performances</div>
             </div>
             <p style={{ fontSize: "0.82rem", color: "var(--grey-text)", marginBottom: 16 }}>
-              Cette action est definitive. Tu pourras la corriger avec le bouton Remettre en disponible si besoin.
+              Cette action'est definitive. Tu pourras la corriger avec le bouton Remettre en disponible si besoin.
             </p>
             <div className="modal-actions">
               <button className="btn btn-secondary" onClick={() => { setConfirmTarget(null); setMontantPanier("") }} disabled={validating}>Annuler</button>
               <button className="btn btn-primary" onClick={handleValidate} disabled={validating}>
-                {validating ? "Validation..." : "Valider"}
+                {validating ? "Validation..." : "Validér"}
               </button>
             </div>
           </div>
@@ -219,11 +219,11 @@ export function AdminPlayerPage() {
         <div className="modal-overlay" onClick={() => setConfirmDeletePlayer(false)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <h3>Supprimer ce joueur ?</h3>
-            <p>Confirmer la suppression de <strong>{player.first_name} {player.last_name}</strong> ? Tous ses coupons seront egalement supprimes. Cette action est irreversible.</p>
+            <p>Confirmer la suppression de <strong>{player.first_name} {player.last_name}</strong> ? Tous ses coupons seront egalement supprimes. Cette action'est irreversible.</p>
             <div className="modal-actions">
               <button className="btn btn-secondary" onClick={() => setConfirmDeletePlayer(false)} disabled={validating}>Annuler</button>
               <button className="btn btn-danger" onClick={handleDeletePlayer} disabled={validating}>
-                {validating ? "Suppression..." : "Supprimer definitivement"}
+                {validating ? "Suppression..." : "Supprimer définitivement"}
               </button>
             </div>
           </div>

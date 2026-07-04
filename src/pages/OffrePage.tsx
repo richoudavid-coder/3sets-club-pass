@@ -39,14 +39,14 @@ export function OffrePage() {
 
   if (loading) return (
     <div className="app-shell">
-      <BrandHeader tagline="Offre speciale" />
-      <div className="page-container"><Loader label="Chargement de l offre..." /></div>
+      <BrandHeader tagline="Offre spéciale" />
+      <div className="page-container"><Loader label="Chargement de l'offre..." /></div>
     </div>
   )
 
   if (!notif) return (
     <div className="app-shell">
-      <BrandHeader tagline="Offre speciale" />
+      <BrandHeader tagline="Offre spéciale" />
       <div className="page-container text-center" style={{ paddingTop: 50 }}>
         <h2>Offre introuvable</h2>
         <Link to="/" className="btn btn-secondary mt-24" style={{ display: "inline-flex" }}>Retour</Link>
@@ -58,7 +58,7 @@ export function OffrePage() {
 
   return (
     <div className="app-shell">
-      <BrandHeader tagline="Offre speciale 3SETS" />
+      <BrandHeader tagline="Offre spéciale 3SETS" />
       <div className="page-container">
 
         <div style={{ borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", marginTop: 24, marginBottom: 20 }}>
@@ -83,7 +83,7 @@ export function OffrePage() {
         {coupon ? (
           <>
             <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: 14, color: "var(--navy)" }}>
-              Coupon associe a cette offre
+              Coupon associé a cette offre
             </h3>
             <CouponCard
               title={coupon.title}
@@ -94,7 +94,7 @@ export function OffrePage() {
               sport={coupon.sport}
             />
             <p style={{ fontSize: "0.8rem", color: "var(--grey-text)", marginTop: 10, textAlign: "center" }}>
-              Presente ton pass en magasin pour faire valider ce coupon par un vendeur 3SETS.
+              Présente ton pass en magasin pour faire validér ce coupon par un vendeur 3SETS.
             </p>
           </>
         ) : null}

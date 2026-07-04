@@ -53,7 +53,7 @@ export function ClubSignupPage() {
     if (data) {
       navigate("/pass/" + data.id)
     } else {
-      setSearchError("Aucun compte trouve avec cet email pour ce club. Verifie ton adresse ou inscris-toi.")
+      setSearchError("Aucun compte trouvé avec cet email pour ce club. Vérifie ton adresse ou inscris-toi.")
     }
     setSearching(false)
   }
@@ -70,7 +70,7 @@ export function ClubSignupPage() {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email.trim())) {
-      setError("Merci de saisir une adresse email valide.")
+      setError("Merci de saisir une adresse email validé.")
       return
     }
 
@@ -95,15 +95,15 @@ export function ClubSignupPage() {
         }).select().single()
 
       if (insertError || !player) {
-        setError("Une erreur est survenue lors de l inscription. Reessaie dans un instant.")
+        setError("Une erreur est survenue lors de l'inscription. Réessaie dans un instant.")
         setSubmitting(false)
         return
       }
 
-      // Recuperer tous les sports du club (multi-sports ou sport unique)
+      // Récupèrer tous les sports du club (multi-sports ou sport unique)
       const clubSports = club.sports && club.sports.length > 0 ? club.sports : [club.sport]
       
-      // Attribuer les coupons pour chaque sport du club
+      // Attribuér les coupons pour chaque sport du club
       const allCoupons = []
       for (const sp of clubSports) {
         const { data } = await supabase
@@ -162,14 +162,14 @@ export function ClubSignupPage() {
         <div className="club-hero">
           <span className="club-hero__sport-chip">{SPORT_LABELS[club.sport as keyof typeof SPORT_LABELS]}</span>
           <h1>{club.name}</h1>
-          <p>Inscris-toi pour debloquer tes coupons 3SETS reserves aux licencies de ton club.</p>
+          <p>Inscris-toi pour débloquer tes coupons 3SETS réservés aux licenciés de ton club.</p>
         </div>
         <div className="auth-tabs" style={{ marginBottom: 0, borderRadius: "14px 14px 0 0" }}>
           <button className={tab === "new" ? "active" : ""} onClick={() => setTab("new")}>
             Nouveau
           </button>
           <button className={tab === "existing" ? "active" : ""} onClick={() => setTab("existing")}>
-            Deja inscrit
+            Déjà inscrit
           </button>
         </div>
         <div className="card" style={{ borderRadius: "0 0 14px 14px", marginTop: 0 }}>
@@ -190,7 +190,7 @@ export function ClubSignupPage() {
                 />
               </div>
               <button type="submit" className="btn btn-primary btn-block" disabled={searching}>
-                {searching ? "Recherche en cours..." : "Retrouver mon pass"}
+                {searching ? "Recherche en cours......" : "Retrouver mon pass"}
               </button>
             </form>
           ) : (
@@ -205,7 +205,7 @@ export function ClubSignupPage() {
               <input value={SPORT_LABELS[club.sport as keyof typeof SPORT_LABELS]} disabled className="field-locked" />
             </div>
             <div className="field">
-              <label>Prenom</label>
+              <label>Prénom</label>
               <input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Jean" autoComplete="given-name" />
             </div>
             <div className="field">
@@ -217,7 +217,7 @@ export function ClubSignupPage() {
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jean.dupont@email.fr" autoComplete="email" />
             </div>
             <div className="field">
-              <label>Telephone</label>
+              <label>Téléphone</label>
               <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="06 12 34 56 78" autoComplete="tel" />
             </div>
             <div className="field" style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 20 }}>
@@ -229,11 +229,11 @@ export function ClubSignupPage() {
                 style={{ width: 18, height: 18, marginTop: 2, accentColor: "var(--orange)", flexShrink: 0 }}
               />
               <label htmlFor="newsletter" style={{ fontSize: "0.88rem", color: "var(--navy-soft)", cursor: "pointer", fontWeight: 400 }}>
-                J accepte de recevoir les offres exclusives et la newsletter 3SETS par email. Tu pourras te desabonner a tout moment.
+                J'accepte de recevoir les offres exclusives et la newsletter 3SETS par email. Tu pourras te désabonner a tout moment.
               </label>
             </div>
             <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
-              {submitting ? "Inscription en cours..." : "Je m inscris et je recupere mes coupons"}
+              {submitting ? "Inscription en cours..." : "Je m'inscris et je récupère mes coupons"}
             </button>
           </form>
           )}

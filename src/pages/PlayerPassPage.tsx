@@ -101,11 +101,11 @@ export function PlayerPassPage() {
         </div>
         <NotificationBanner />
         <p style={{ color: "var(--grey-text)", fontSize: "0.88rem", marginTop: 4 }}>
-          Presente cet ecran en magasin pour faire valider tes coupons par un vendeur 3SETS.
+          Présente cet écran en magasin pour faire validér tes coupons par un vendeur 3SETS.
         </p>
         <div className="coupons-grid">
           {coupons.length === 0 && (
-            <div className="empty-state">Aucun coupon disponible pour le moment.</div>
+            <div className="empty-state">Aucun coupon disponible pour le moment..</div>
           )}
           {coupons.map((c, i) => (
             <CouponCard

@@ -3,7 +3,7 @@ import type { CouponStatus } from '../types'
 /**
  * Calcule le statut "affichable" d'un coupon pour un joueur.
  * - Si déjà marqué "used" en base => Utilisé (priorité absolue, même si la date est dépassée)
- * - Sinon, si la date de fin est dépassée => Expiré
+ * - Sinon, si la date de fin'est dépassée => Expiré
  * - Sinon => Disponible
  */
 export function computeDisplayStatus(

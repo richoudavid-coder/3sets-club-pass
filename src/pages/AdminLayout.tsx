@@ -23,7 +23,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               {profile?.email}
             </span>
             <button className="btn btn-ghost-light btn-sm" onClick={handleSignOut}>
-              Deconnexion
+              Déconnexion
             </button>
           </>
         }

@@ -23,13 +23,13 @@ export function ResetPasswordPage() {
 
   return (
     <div className="app-shell">
-      <BrandHeader tagline="Reinitialisation du mot de passe" />
+      <BrandHeader tagline="Réinitialisation du mot de passe" />
       <div className="page-container">
         <div className="card auth-card">
-          <h2 style={{ marginBottom: 16, fontSize: "1.2rem" }}>Mot de passe oublie</h2>
+          <h2 style={{ marginBottom: 16, fontSize: "1.2rem" }}>Mot de passe oublié</h2>
           {sent ? (
-            <div className="form-success-banner">
-              Un email de reinitialisation a ete envoye a {email}. Verifie ta boite mail et clique sur le lien pour choisir un nouveau mot de passe.
+            <div className="form-succèss-banner">
+              Un email de réinitialisation a ete envoye a {email}. Vérifie ta boite mail et clique sur le lien pour choisir un nouveau mot de passe.
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
@@ -39,12 +39,12 @@ export function ResetPasswordPage() {
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ton@email.fr" autoComplete="email" />
               </div>
               <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-                {loading ? "Envoi en cours..." : "Envoyer le lien de reinitialisation"}
+                {loading ? "Envoi en cours..." : "Envoyer le lien de réinitialisation"}
               </button>
             </form>
           )}
           <p style={{ marginTop: 16, fontSize: "0.8rem", color: "var(--grey-text)", textAlign: "center" }}>
-            <a href="/auth" style={{ color: "var(--navy)", fontWeight: 700 }}>Retour a la connexion</a>
+            <a href="/auth" style={{ color: "var(--navy)", fontWeight: 700 }}>Retour à la connexion</a>
           </p>
         </div>
       </div>

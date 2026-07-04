@@ -25,7 +25,7 @@ function resolveAppUrl(): string {
     try {
       return new URL(trimmed).origin
     } catch (e) {
-      // valeur invalide, on retombe sur window.location.origin ci-dessous
+      // valeur invalidé, on retombe sur window.location.origin ci-dessous
     }
   }
 

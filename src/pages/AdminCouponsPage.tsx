@@ -81,11 +81,11 @@ export function AdminCouponsPage() {
     if (editing) {
       const { error: updateError } = await supabase.from("coupons").update(payload).eq("id", editing)
       if (updateError) { setError("Erreur lors de la modification."); return }
-      setFeedback("Coupon modifie avec succes.")
+      setFeedback("Coupon modifie avec succès.")
     } else {
       const { error: insertError } = await supabase.from("coupons").insert(payload)
       if (insertError) { setError("Erreur lors de la creation."); return }
-      setFeedback("Coupon cree avec succes.")
+      setFeedback("Coupon créé avec succès.")
     }
     setEditing(null)
     setForm(emptyForm)
@@ -97,7 +97,7 @@ export function AdminCouponsPage() {
     setFeedback(null)
     setError(null)
 
-    // Recuperer tous les clubs qui proposent ce sport (sport principal OU dans le tableau sports)
+    // Récupèrer tous les clubs qui proposent ce sport (sport principal OU dans le tableau sports)
     const { data: clubs } = await supabase
       .from("clubs")
       .select("id, sport, sports")
@@ -114,7 +114,7 @@ export function AdminCouponsPage() {
       return
     }
 
-    // Recuperer tous les joueurs de ces clubs
+    // Récupèrer tous les joueurs de ces clubs
     const { data: players, error: playersError } = await supabase
       .from("players")
       .select("id")
@@ -125,7 +125,7 @@ export function AdminCouponsPage() {
       return
     }
 
-    // Attribuer le coupon a tous ces joueurs (ignorer les doublons)
+    // Attribuér le coupon a tous ces joueurs (ignorer les doublons)
     const rows = players.map((p: any) => ({
       player_id: p.id,
       coupon_id: coupon.id,
@@ -143,8 +143,8 @@ export function AdminCouponsPage() {
     }
 
     setFeedback(
-      "Coupon attribue a " + totalInserted + " joueur(s) de " +
-      SPORT_LABELS[coupon.sport as keyof typeof SPORT_LABELS] + " avec succes."
+      "Coupon attribué a " + totalInserted + " joueur(s) de " +
+      SPORT_LABELS[coupon.sport as keyof typeof SPORT_LABELS] + " avec succès."
     )
     loadCoupons()
   }
@@ -153,7 +153,7 @@ export function AdminCouponsPage() {
     if (!deleteTarget) return
     setDeleting(true)
     await supabase.from("coupons").delete().eq("id", deleteTarget.id)
-    setFeedback("Coupon supprime avec succes.")
+    setFeedback("Coupon supprime avec succès.")
     setDeleteTarget(null)
     setDeleting(false)
     loadCoupons()
@@ -173,7 +173,7 @@ export function AdminCouponsPage() {
         <button className="btn btn-primary btn-sm" onClick={startCreate}>+ Nouveau coupon</button>
       </div>
 
-      {feedback ? <div className="form-success-banner">{feedback}</div> : null}
+      {feedback ? <div className="form-succèss-banner">{feedback}</div> : null}
 
       {showForm ? (
         <div className="card mt-24">
@@ -201,12 +201,12 @@ export function AdminCouponsPage() {
               </select>
             </div>
             <div className="field">
-              <label>Valeur estimee du coupon (en euros)</label>
+              <label>Valeur estimée du coupon (en euros)</label>
               <input type="number" min="0" step="0.01" value={form.valeur_euros || 0} onChange={(e) => setForm({ ...form, valeur_euros: parseFloat(e.target.value) || 0 })} placeholder="Ex: 25.00" />
               <div className="field-hint">Valeur moyenne de l avantage accorde (utilisee pour estimer le CA influence)</div>
             </div>
             <div className="field">
-              <label>Date de debut</label>
+              <label>Date de début</label>
               <input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
             </div>
             <div className="field">
@@ -218,7 +218,7 @@ export function AdminCouponsPage() {
               <label htmlFor="active" style={{ fontWeight: 400, cursor: "pointer" }}>Coupon actif (visible et attribuable)</label>
             </div>
             <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-              <button type="submit" className="btn btn-primary">{editing ? "Enregistrer les modifications" : "Creer le coupon"}</button>
+              <button type="submit" className="btn btn-primary">{editing ? "Enregistrer les modifications" : "Créér le coupon"}</button>
               <button type="button" className="btn btn-secondary" onClick={() => { setShowForm(false); setEditing(null); setError(null) }}>Annuler</button>
             </div>
           </form>
@@ -249,14 +249,14 @@ export function AdminCouponsPage() {
                 <td>{formatDateFr(coupon.end_date)}</td>
                 <td>{coupon.valeur_euros ? coupon.valeur_euros + " €" : "-"}</td>
                 <td>
-                  <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: coupon.active ? "var(--success-bg)" : "var(--neutral-bg)", color: coupon.active ? "var(--success)" : "var(--neutral)" }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: coupon.active ? "var(--succèss-bg)" : "var(--neutral-bg)", color: coupon.active ? "var(--succèss)" : "var(--neutral)" }}>
                     {coupon.active ? "Actif" : "Inactif"}
                   </span>
                 </td>
                 <td style={{ display: "flex", gap: 6 }}>
                   <button className="btn btn-secondary btn-sm" onClick={() => startEdit(coupon)}>Modifier</button>
-                  <button className="btn btn-secondary btn-sm" onClick={() => toggleActive(coupon)}>{coupon.active ? "Desactiver" : "Reactiver"}</button>
-                  <button className="btn btn-primary btn-sm" onClick={() => handleAttributeAll(coupon)} title="Attribuer ce coupon a tous les joueurs du sport">Attribuer a tous</button>
+                  <button className="btn btn-secondary btn-sm" onClick={() => toggleActive(coupon)}>{coupon.active ? "Désactiver" : "Réactiver"}</button>
+                  <button className="btn btn-primary btn-sm" onClick={() => handleAttributeAll(coupon)} title="Attribuér ce coupon a tous les joueurs du sport">Attribuér a tous</button>
                   <button className="btn btn-danger btn-sm" onClick={() => setDeleteTarget(coupon)}>Supprimer</button>
                 </td>
               </tr>
@@ -270,8 +270,8 @@ export function AdminCouponsPage() {
       {deleteTarget ? (
         <ConfirmModal
           title="Supprimer ce coupon ?"
-          message={"Confirmer la suppression du coupon \"" + deleteTarget.title + "\" ? Cette action est irreversible."}
-          confirmLabel="Supprimer definitivement"
+          message={"Confirmer la suppression du coupon \"" + deleteTarget.title + "\" ? Cette action'est irreversible."}
+          confirmLabel="Supprimer définitivement"
           onConfirm={handleDeleteCoupon}
           onCancel={() => setDeleteTarget(null)}
           busy={deleting}

@@ -93,14 +93,14 @@ export function AdminClubsPage() {
     })
     if (insertError) {
       if (insertError.code === "23505") {
-        setError("Cet identifiant est deja utilise. Choisis-en un different.")
+        setError("Cet identifiant est déjà utilise. Choisis-en un different.")
       } else {
         setError("Erreur lors de la creation du club.")
       }
       setSubmitting(false)
       return
     }
-    setFeedback("Club " + cleanName + " cree avec succes.")
+    setFeedback("Club " + cleanName + " créé avec succès.")
     setName("")
     setSlug("")
     setSlugManuallyEdited(false)
@@ -133,7 +133,7 @@ export function AdminClubsPage() {
     if (updateError) {
       setError("Erreur lors de la modification.")
     } else {
-      setFeedback("Club modifie avec succes.")
+      setFeedback("Club modifie avec succès.")
       setEditingClub(null)
     }
     setSaving(false)
@@ -162,7 +162,7 @@ export function AdminClubsPage() {
         <h1>Gestion des clubs</h1>
       </div>
 
-      {feedback ? <div className="form-success-banner">{feedback}</div> : null}
+      {feedback ? <div className="form-succèss-banner">{feedback}</div> : null}
 
       <div className="card mt-24">
         <h3 className="section-title">Ajouter un nouveau club</h3>
@@ -178,7 +178,7 @@ export function AdminClubsPage() {
             <div className="field-hint">URL : {buildUrl(slug || "...")}</div>
           </div>
           <div className="field">
-            <label>Sports proposes (cochez tout ce qui s'applique)</label>
+            <label>Sports proposés (cochez tout ce qui s'applique)</label>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
               {ALL_SPORTS.map((sp) => (
                 <label key={sp} style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 400, cursor: "pointer", fontSize: "0.95rem" }}>
@@ -194,7 +194,7 @@ export function AdminClubsPage() {
             </div>
           </div>
           <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? "Creation en cours..." : "Creer le club"}
+            {submitting ? "Création en cours..." : "Créér le club"}
           </button>
         </form>
       </div>
@@ -223,13 +223,13 @@ export function AdminClubsPage() {
               <div className="qr-card__url">{url}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <button className="btn btn-secondary btn-sm btn-block" onClick={() => downloadQrCode(containerId, "qrcode-" + club.slug + ".png")}>
-                  Telecharger le PNG
+                  Télécharger le PNG
                 </button>
                 <button className="btn btn-secondary btn-sm btn-block" onClick={() => startEditClub(club)}>
                   Modifier
                 </button>
                 <button className="btn btn-secondary btn-sm btn-block" onClick={() => toggleActive(club)}>
-                  {club.active ? "Desactiver" : "Reactiver"}
+                  {club.active ? "Désactiver" : "Réactiver"}
                 </button>
                 <button className="btn btn-danger btn-sm btn-block" onClick={() => setDeleteTarget(club)}>
                   Supprimer
@@ -253,7 +253,7 @@ export function AdminClubsPage() {
               <input value={editName} onChange={(e) => setEditName(e.target.value)} />
             </div>
             <div className="field">
-              <label>Sports proposes</label>
+              <label>Sports proposés</label>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
                 {ALL_SPORTS.map((sp) => (
                   <label key={sp} style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 400, cursor: "pointer", fontSize: "0.95rem" }}>
@@ -281,7 +281,7 @@ export function AdminClubsPage() {
         <ConfirmModal
           title="Supprimer ce club ?"
           message={"Confirmer la suppression de " + deleteTarget.name + " ? Tous les joueurs et coupons associes seront supprimes. Action irreversible."}
-          confirmLabel="Supprimer definitivement"
+          confirmLabel="Supprimer définitivement"
           onConfirm={handleDeleteClub}
           onCancel={() => setDeleteTarget(null)}
           busy={deleting}

@@ -133,17 +133,29 @@ export function NotificationBanner() {
           </div>
           {isClickable ? (
             <div style={{ marginTop: 10, fontSize: "0.78rem", color: style.color, opacity: 0.8, fontWeight: 700 }}>
-              Appuie pour voir le detail et le coupon associe →
+              Appuie pour voir le détail et le coupon associé →
             </div>
           ) : null}
         </div>
 
-        <div style={{ padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f4f6f8" }}>
+        <div style={{ padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f4f6f8", gap: 10 }}>
           {notifications.length > 1 ? (
-            <div style={{ display: "flex", gap: 6 }}>
-              {notifications.map((_, i) => (
-                <button key={i} onClick={() => setCurrent(i)} style={{ width: 8, height: 8, borderRadius: "50%", border: "none", cursor: "pointer", background: i === current ? "var(--orange)" : "var(--grey-line)" }} />
-              ))}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                onClick={() => setCurrent((current - 1 + notifications.length) % notifications.length)}
+                style={{ background: "var(--grey-line)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                ←
+              </button>
+              <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--navy)" }}>
+                {current + 1} / {notifications.length}
+              </span>
+              <button
+                onClick={() => setCurrent((current + 1) % notifications.length)}
+                style={{ background: "var(--grey-line)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                →
+              </button>
             </div>
           ) : <div />}
           <button

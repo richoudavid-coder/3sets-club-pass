@@ -103,7 +103,7 @@ export function AdminDashboardPage() {
     const subscribers = filteredPlayers.filter((p) => p.newsletter)
     downloadCsv(
       'newsletter-3sets.csv',
-      ['Prenom', 'Nom', 'Email', 'Telephone', 'Sport', 'Club', 'Inscription'],
+      ['Prénom', 'Nom', 'Email', 'Téléphone', 'Sport', 'Club', 'Inscription'],
       subscribers.map((p) => [
         p.first_name,
         p.last_name,
@@ -119,7 +119,7 @@ export function AdminDashboardPage() {
   function exportPlayersCsv() {
     downloadCsv(
       'joueurs-3sets-club-pass.csv',
-      ['Prenom', 'Nom', 'Email', 'Telephone', 'Sport', 'Club', 'Inscription', 'Newsletter'],
+      ['Prénom', 'Nom', 'Email', 'Téléphone', 'Sport', 'Club', 'Inscription', 'Newsletter'],
       filteredPlayers.map((p) => [
         p.first_name,
         p.last_name,

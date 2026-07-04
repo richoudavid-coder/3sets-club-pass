@@ -66,7 +66,7 @@ export function AuthPage() {
 
           <form onSubmit={handleSubmit}>
             {error && <div className="form-error-banner">{error}</div>}
-            {info && <div className="form-success-banner">{info}</div>}
+            {info && <div className="form-succèss-banner">{info}</div>}
 
             <div className="field">
               <label>Email</label>
@@ -100,7 +100,7 @@ export function AuthPage() {
           </form>
         </div>
 
-        <p className="text-center" style={{ fontSize: '0.78rem', color: 'var(--grey-text)', marginTop: 12 }}><a href="/mot-de-passe-oublie" style={{ color: 'var(--navy)', fontWeight: 700 }}>Mot de passe oublie ?</a></p><p className="text-center" style={{ fontSize: '0.78rem', color: 'var(--grey-text)', marginTop: 8 }}>
+        <p className="text-center" style={{ fontSize: '0.78rem', color: 'var(--grey-text)', marginTop: 12 }}><a href="/mot-de-passe-oublie" style={{ color: 'var(--navy)', fontWeight: 700 }}>Mot de passe oublié ?</a></p><p className="text-center" style={{ fontSize: '0.78rem', color: 'var(--grey-text)', marginTop: 8 }}>
           Le compte magasin@3sets.fr devient automatiquement administrateur à sa création (voir le
           script SQL fourni).
         </p>

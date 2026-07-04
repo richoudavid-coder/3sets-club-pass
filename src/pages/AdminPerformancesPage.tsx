@@ -69,11 +69,11 @@ export function AdminPerformancesPage() {
         </div>
         <div className="stat-card">
           <div className="stat-card__value">{totalCoupons}</div>
-          <div className="stat-card__label">Coupons utilises</div>
+          <div className="stat-card__label">Coupons utilisés</div>
         </div>
         <div className="stat-card stat-card--accent">
           <div className="stat-card__value">{totalCA.toFixed(0)} €</div>
-          <div className="stat-card__label">CA reel (paniers saisis)</div>
+          <div className="stat-card__label">CA réel (paniers saisis)</div>
         </div>
       </div>
 
@@ -107,7 +107,7 @@ export function AdminPerformancesPage() {
         )}
       </div>
 
-      <h3 className="section-title">Detail par club</h3>
+      <h3 className="section-title">Détail par club</h3>
       <div className="table-wrap">
         <table>
           <thead>
@@ -115,9 +115,9 @@ export function AdminPerformancesPage() {
               <th>Club</th>
               <th>Sport(s)</th>
               <th>Joueurs</th>
-              <th>Coupons utilises</th>
-              <th>CA reel</th>
-              <th>CA estime</th>
+              <th>Coupons utilisés</th>
+              <th>CA réel</th>
+              <th>CA estimé</th>
               <th>Moy. panier</th>
             </tr>
           </thead>

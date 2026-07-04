@@ -86,7 +86,7 @@ export function AdminNotificationsPage() {
     }
     const { error: insertError } = await supabase.from("notifications").insert(payload)
     if (insertError) { setError("Erreur lors de la creation."); setSubmitting(false); return }
-    setFeedback("Notification creee avec succes.")
+    setFeedback("Notification créée avec succès.")
     setForm(emptyForm)
     setImageFile(null)
     setImagePreview(null)
@@ -121,7 +121,7 @@ export function AdminNotificationsPage() {
         </button>
       </div>
 
-      {feedback ? <div className="form-success-banner">{feedback}</div> : null}
+      {feedback ? <div className="form-succèss-banner">{feedback}</div> : null}
 
       {showForm ? (
         <div className="card mt-24">
@@ -130,7 +130,7 @@ export function AdminNotificationsPage() {
             {error ? <div className="form-error-banner">{error}</div> : null}
             <div className="field">
               <label>Titre *</label>
-              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Offre speciale Noel" />
+              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Offre spéciale Noel" />
             </div>
             <div className="field">
               <label>Message *</label>
@@ -148,13 +148,13 @@ export function AdminNotificationsPage() {
               </div>
             </div>
             <div className="field">
-              <label>Description detaillee (optionnel)</label>
-              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Decrivez l operation en detail..." rows={3} style={{ width: "100%", padding: "10px 14px", border: "1.5px solid var(--grey-line)", borderRadius: 8, fontFamily: "inherit", fontSize: "1rem", resize: "vertical" }} />
+              <label>Description détaillée (optionnel)</label>
+              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Decrivez l'opération en detail..." rows={3} style={{ width: "100%", padding: "10px 14px", border: "1.5px solid var(--grey-line)", borderRadius: 8, fontFamily: "inherit", fontSize: "1rem", resize: "vertical" }} />
             </div>
             <div className="field">
-              <label>Coupon lie (optionnel)</label>
+              <label>Coupon lié (optionnel)</label>
               <select value={form.coupon_id} onChange={(e) => setForm({ ...form, coupon_id: e.target.value })}>
-                <option value="">-- Aucun coupon lie --</option>
+                <option value="">-- Aucun coupon lié --</option>
                 {coupons.map((c) => (
                   <option key={c.id} value={c.id}>{c.title}</option>
                 ))}
@@ -171,7 +171,7 @@ export function AdminNotificationsPage() {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <div className="field">
-                <label>Date de debut *</label>
+                <label>Date de début *</label>
                 <input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
               </div>
               <div className="field">
@@ -185,7 +185,7 @@ export function AdminNotificationsPage() {
             </div>
             <div style={{ display: "flex", gap: 10 }}>
               <button type="submit" className="btn btn-primary" disabled={submitting || uploading}>
-                {uploading ? "Upload image..." : submitting ? "Creation..." : "Publier la notification"}
+                {uploading ? "Upload image......" : submitting ? "Creation..." : "Publier la notification"}
               </button>
               <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>Annuler</button>
             </div>
@@ -201,7 +201,7 @@ export function AdminNotificationsPage() {
             <tr>
               <th>Titre</th>
               <th>Message</th>
-              <th>Periode</th>
+              <th>Période</th>
               <th>Statut</th>
               <th></th>
             </tr>
@@ -221,13 +221,13 @@ export function AdminNotificationsPage() {
                   {formatDateFr(notif.start_date)}<br />au {formatDateFr(notif.end_date)}
                 </td>
                 <td>
-                  <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: notif.active ? "var(--success-bg)" : "var(--neutral-bg)", color: notif.active ? "var(--success)" : "var(--neutral)" }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: notif.active ? "var(--succèss-bg)" : "var(--neutral-bg)", color: notif.active ? "var(--succèss)" : "var(--neutral)" }}>
                     {notif.active ? "Active" : "Inactive"}
                   </span>
                 </td>
                 <td style={{ display: "flex", gap: 6 }}>
                   <button className="btn btn-secondary btn-sm" onClick={() => toggleActive(notif)}>
-                    {notif.active ? "Desactiver" : "Reactiver"}
+                    {notif.active ? "Désactiver" : "Réactiver"}
                   </button>
                   <button className="btn btn-danger btn-sm" onClick={() => setDeleteTarget(notif)}>Supprimer</button>
                 </td>
