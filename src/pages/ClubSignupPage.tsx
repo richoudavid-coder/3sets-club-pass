@@ -77,11 +77,29 @@ export function ClubSignupPage() {
     setSubmitting(true)
 
     try {
-      const { data: existing } = await supabase
-        .from("players").select("id").eq("club_id", club.id)
-        .eq("email", email.trim().toLowerCase()).maybeSingle()
+      // Verifier si email deja utilise dans n'importe quel club
+      const { data: existingEmail } = await supabase
+        .from("players").select("id, club_id")
+        .eq("email", email.trim().toLowerCase())
 
-      if (existing) { navigate("/pass/" + existing.id); return }
+      if (existingEmail && existingEmail.length > 0) {
+        const sameClub = existingEmail.find((p: any) => p.club_id === club.id)
+        if (sameClub) { navigate("/pass/" + sameClub.id); return }
+        setError("Cette adresse email est deja utilisee dans un autre club 3SETS. Utilise l'onglet Deja inscrit ou retrouve ton pass sur la page d'accueil.")
+        setSubmitting(false)
+        return
+      }
+
+      // Verifier si telephone deja utilise dans n'importe quel club
+      const { data: existingPhone } = await supabase
+        .from("players").select("id, club_id")
+        .eq("phone", phone.trim())
+
+      if (existingPhone && existingPhone.length > 0) {
+        setError("Ce numero de telephone est deja utilise dans un autre club 3SETS. Utilise l'onglet Deja inscrit ou retrouve ton pass sur la page d'accueil.")
+        setSubmitting(false)
+        return
+      }
 
       const { data: player, error: insertError } = await supabase
         .from("players").insert({
