@@ -89,7 +89,14 @@ export function PlayerPassPage() {
           <h1>Bonjour {player.first_name}</h1>
           <div className="pass-greeting__meta">
             <span className="pass-greeting__tag">{player.club?.name ?? "Club"}</span>
-            <span className="pass-greeting__tag">{SPORT_LABELS[player.sport as keyof typeof SPORT_LABELS]}</span>
+            {(player.club?.sports && player.club.sports.length > 0
+              ? player.club.sports
+              : [player.sport]
+            ).map((s: string) => (
+              <span key={s} className="pass-greeting__tag">
+                {SPORT_LABELS[s as keyof typeof SPORT_LABELS] || s}
+              </span>
+            ))}
           </div>
         </div>
         <NotificationBanner />
