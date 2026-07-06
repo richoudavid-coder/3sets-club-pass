@@ -44,24 +44,25 @@ export function CouponCard({ title, description, terms, endDate, status, index, 
     <div className={"cpv2-card cpv2-card--" + status} style={{ position: "relative", overflow: "hidden" }}>
       {sportLabel ? (
         <div style={{
-          position: "absolute",
-          left: -36,
-          top: "50%",
-          transform: "translateY(-50%) rotate(-90deg)",
+          display: "inline-flex",
+          alignSelf: "flex-start",
           background: sportColor,
           color: "white",
-          fontSize: "0.72rem",
+          fontSize: "0.65rem",
           fontWeight: 900,
-          letterSpacing: "0.2em",
-          padding: "5px 24px",
-          whiteSpace: "nowrap",
+          letterSpacing: "0.18em",
+          padding: "4px 12px",
+          borderRadius: "0 0 8px 0",
+          position: "absolute",
+          top: 0,
+          left: 0,
           zIndex: 2,
           fontFamily: "var(--font-display)",
         }}>
           {sportLabel}
         </div>
       ) : null}
-      <div className="cpv2-card__top" style={{ paddingLeft: sport ? 32 : undefined }}>
+      <div className="cpv2-card__top" style={{ paddingTop: sport ? 28 : undefined }}>
         <div className="cpv2-card__left">
           {highlight ? (
             <>
@@ -76,7 +77,7 @@ export function CouponCard({ title, description, terms, endDate, status, index, 
         {num ? <span className="cpv2-card__num">{num}</span> : null}
       </div>
       <div className="cpv2-card__divider" />
-      <div className="cpv2-card__bottom" style={{ paddingLeft: sport ? 32 : 20 }}>
+      <div className="cpv2-card__bottom">
         <div className="cpv2-card__meta">
           <span className="cpv2-card__terms">{terms}</span>
           <span className="cpv2-card__date">Valable jusqu'au {formatDateFr(endDate)}</span>
