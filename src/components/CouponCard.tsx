@@ -45,15 +45,15 @@ export function CouponCard({ title, description, terms, endDate, status, index, 
       {sportLabel ? (
         <div style={{
           position: "absolute",
-          left: -42,
+          left: -36,
           top: "50%",
           transform: "translateY(-50%) rotate(-90deg)",
           background: sportColor,
           color: "white",
-          fontSize: "0.85rem",
+          fontSize: "0.72rem",
           fontWeight: 900,
           letterSpacing: "0.2em",
-          padding: "6px 32px",
+          padding: "5px 24px",
           whiteSpace: "nowrap",
           zIndex: 2,
           fontFamily: "var(--font-display)",
@@ -76,7 +76,7 @@ export function CouponCard({ title, description, terms, endDate, status, index, 
         {num ? <span className="cpv2-card__num">{num}</span> : null}
       </div>
       <div className="cpv2-card__divider" />
-      <div className="cpv2-card__bottom">
+      <div className="cpv2-card__bottom" style={{ paddingLeft: sport ? 32 : 20 }}>
         <div className="cpv2-card__meta">
           <span className="cpv2-card__terms">{terms}</span>
           <span className="cpv2-card__date">Valable jusqu'au {formatDateFr(endDate)}</span>
