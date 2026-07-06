@@ -61,7 +61,7 @@ export function CouponCard({ title, description, terms, endDate, status, index, 
           {sportLabel}
         </div>
       ) : null}
-      <div className="cpv2-card__top" style={{ paddingLeft: sport ? 24 : undefined }}>
+      <div className="cpv2-card__top" style={{ paddingLeft: sport ? 32 : undefined }}>
         <div className="cpv2-card__left">
           {highlight ? (
             <>
