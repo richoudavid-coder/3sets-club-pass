@@ -23,7 +23,6 @@ export function NotificationBanner() {
         .from("notifications")
         .select("*")
         .eq("active", true)
-        .lte("start_date", today)
         .gte("end_date", today)
         .order("created_at", { ascending: false })
       setNotifications(data || [])
