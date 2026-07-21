@@ -272,6 +272,9 @@ export function AdminNotificationsPage() {
                   <button className="btn btn-secondary btn-sm" onClick={() => toggleActive(notif)}>
                     {notif.active ? "Désactiver" : "Réactiver"}
                   </button>
+                  <button className="btn btn-primary btn-sm" onClick={() => sendPushNotification(notif)} title="Envoyer une notification push a tous les abonnes">
+                    📲 Push
+                  </button>
                   <button className="btn btn-danger btn-sm" onClick={() => setDeleteTarget(notif)}>Supprimer</button>
                 </td>
               </tr>
