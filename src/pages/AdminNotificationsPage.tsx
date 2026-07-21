@@ -34,6 +34,19 @@ export function AdminNotificationsPage() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
+  async function sendPushNotification(notif: any) {
+    setFeedback(null)
+    // Recuperer toutes les subscriptions
+    const { data: subs } = await supabase.from("push_subscriptions").select("subscription")
+    if (!subs || subs.length === 0) {
+      setFeedback("Aucun abonne aux notifications push pour le moment.")
+      return
+    }
+    // Appeler une Edge Function Supabase pour envoyer les push
+    // Pour l instant on affiche juste le nombre d abonnes
+    setFeedback(subs.length + " abonne(s) aux notifications push. La fonction d envoi sera configuree apres le deploiement.")
+  }
+
   async function loadNotifications() {
     setLoading(true)
     const { data } = await supabase.from("notifications").select("*").order("created_at", { ascending: false })
