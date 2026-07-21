@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase"
 
 const VAPID_PUBLIC_KEY = "BJLiSBntvogSPLMEKPK5oRjrS9R0USPG3OzLO-8yWyHV5g0pkuBfr_9yem24IrQNm6HGC6tukDsbQy5tC3XDotA"
 
-function urlBase64ToUint8Array(base64String) {
+function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/")
   const rawData = window.atob(base64)
@@ -14,7 +14,7 @@ function urlBase64ToUint8Array(base64String) {
   return outputArray
 }
 
-export function usePushNotifications(playerId) {
+export function usePushNotifications(playerId?: string) {
   const [permission, setPermission] = useState("default")
   const [subscribed, setSubscribed] = useState(false)
 
