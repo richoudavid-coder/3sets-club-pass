@@ -31,14 +31,13 @@ export function usePushNotifications(playerId?: string) {
       await navigator.serviceWorker.ready
       return reg
     } catch (err) {
-      console.error("Erreur enregistrement SW:", err)
+      console.error("Erreur SW:", err)
       return null
     }
   }
 
   async function subscribe() {
     if (!playerId) return
-
     const reg = await registerServiceWorker()
     if (!reg) return
 
@@ -47,7 +46,8 @@ export function usePushNotifications(playerId?: string) {
       setPermission(perm)
       if (perm !== "granted") return
 
-      const subscription = await reg.pushManager.subscribe({
+      const existing = await reg.pushManager.getSubscription()
+      const subscription = existing || await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       })
@@ -59,7 +59,7 @@ export function usePushNotifications(playerId?: string) {
       }, { onConflict: "player_id" })
 
       if (error) {
-        console.error("Erreur sauvegarde en base:", error)
+        console.error("Erreur sauvegarde:", error)
         return
       }
 
