@@ -15,7 +15,7 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 export function usePushNotifications(playerId?: string) {
-  const [permission, setPermission] = useState("default")
+  const [permission, setPermission] = useState<NotificationPermission>("default")
   const [subscribed, setSubscribed] = useState(false)
 
   useEffect(() => {
@@ -25,25 +25,19 @@ export function usePushNotifications(playerId?: string) {
   }, [])
 
   async function registerServiceWorker() {
-    if (!("serviceWorker" in navigator)) {
-      alert("Service Worker non supporte sur ce navigateur")
-      return null
-    }
+    if (!("serviceWorker" in navigator)) return null
     try {
       const reg = await navigator.serviceWorker.register("/sw.js")
       await navigator.serviceWorker.ready
       return reg
     } catch (err) {
-      alert("Erreur enregistrement SW: " + String(err))
+      console.error("Erreur enregistrement SW:", err)
       return null
     }
   }
 
   async function subscribe() {
-    if (!playerId) {
-      alert("Pas de playerId")
-      return
-    }
+    if (!playerId) return
 
     const reg = await registerServiceWorker()
     if (!reg) return
@@ -51,10 +45,7 @@ export function usePushNotifications(playerId?: string) {
     try {
       const perm = await Notification.requestPermission()
       setPermission(perm)
-      if (perm !== "granted") {
-        alert("Permission refusee: " + perm)
-        return
-      }
+      if (perm !== "granted") return
 
       const subscription = await reg.pushManager.subscribe({
         userVisibleOnly: true,
@@ -68,14 +59,13 @@ export function usePushNotifications(playerId?: string) {
       }, { onConflict: "player_id" })
 
       if (error) {
-        alert("Erreur sauvegarde en base: " + JSON.stringify(error))
+        console.error("Erreur sauvegarde en base:", error)
         return
       }
 
-      alert("Succes ! Abonnement enregistre.")
       setSubscribed(true)
     } catch (err) {
-      alert("Erreur subscribe: " + String(err))
+      console.error("Erreur subscribe:", err)
     }
   }
 
