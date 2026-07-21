@@ -99,9 +99,12 @@ export function OffrePage() {
           </>
         ) : null}
 
-        <div style={{ textAlign: "center", marginTop: 24 }}>
-          <Link to={-1 as any} className="btn btn-secondary">
+        <div style={{ textAlign: "center", marginTop: 24, display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+          <button className="btn btn-secondary" onClick={() => window.history.back()}>
             Retour
+          </button>
+          <Link to="/" style={{ fontSize: "0.82rem", color: "var(--grey-text)", fontWeight: 600 }}>
+            Retrouver mon pass
           </Link>
         </div>
       </div>
