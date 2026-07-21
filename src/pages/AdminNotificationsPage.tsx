@@ -39,7 +39,7 @@ export function AdminNotificationsPage() {
     setFeedback(null)
     setError(null)
     try {
-      const { data, error } = await supabase.functions.invoke("send-push-notification", {
+      const { data, error } = await supabase.functions.invoke("quick-function", {
         body: {
           title: notif.title,
           message: notif.message,
