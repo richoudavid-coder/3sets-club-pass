@@ -36,15 +36,22 @@ export function AdminNotificationsPage() {
 
   async function sendPushNotification(notif: any) {
     setFeedback(null)
-    // Recuperer toutes les subscriptions
-    const { data: subs } = await supabase.from("push_subscriptions").select("subscription")
-    if (!subs || subs.length === 0) {
-      setFeedback("Aucun abonne aux notifications push pour le moment.")
-      return
+    try {
+      const { data, error } = await supabase.functions.invoke("send-push-notification", {
+        body: {
+          title: notif.title,
+          message: notif.message,
+          url: "/offre/" + notif.id,
+        },
+      })
+      if (error) {
+        setFeedback("Erreur lors de l envoi des notifications push.")
+        return
+      }
+      setFeedback("Notification envoyee a " + (data?.sent ?? 0) + " abonne(s) sur " + (data?.total ?? 0) + ".")
+    } catch (err) {
+      setFeedback("Erreur lors de l envoi des notifications push.")
     }
-    // Appeler une Edge Function Supabase pour envoyer les push
-    // Pour l instant on affiche juste le nombre d abonnes
-    setFeedback(subs.length + " abonne(s) aux notifications push. La fonction d envoi sera configuree apres le deploiement.")
   }
 
   async function loadNotifications() {
