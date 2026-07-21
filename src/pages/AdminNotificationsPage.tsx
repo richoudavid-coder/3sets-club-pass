@@ -37,6 +37,7 @@ export function AdminNotificationsPage() {
 
   async function sendPushNotification(notif: any) {
     setFeedback(null)
+    setError(null)
     try {
       const { data, error } = await supabase.functions.invoke("send-push-notification", {
         body: {
@@ -46,12 +47,16 @@ export function AdminNotificationsPage() {
         },
       })
       if (error) {
-        setFeedback("Erreur lors de l envoi des notifications push.")
+        setError("Erreur push: " + JSON.stringify(error))
+        return
+      }
+      if (data?.error) {
+        setError("Erreur push (fonction): " + data.error)
         return
       }
       setFeedback("Notification envoyee a " + (data?.sent ?? 0) + " abonne(s) sur " + (data?.total ?? 0) + ".")
-    } catch (err) {
-      setFeedback("Erreur lors de l envoi des notifications push.")
+    } catch (err: any) {
+      setError("Erreur push (catch): " + String(err?.message || err))
     }
   }
 
