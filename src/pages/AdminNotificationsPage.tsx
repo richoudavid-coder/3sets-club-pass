@@ -22,6 +22,7 @@ export function AdminNotificationsPage() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
   const [deleting, setDeleting] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [coupons, setCoupons] = useState<any[]>([])
   const [submitting, setSubmitting] = useState(false)
 
@@ -84,6 +85,25 @@ export function AdminNotificationsPage() {
     return data.publicUrl
   }
 
+  function startEdit(notif: any) {
+    setEditingId(notif.id)
+    setForm({
+      title: notif.title,
+      message: notif.message,
+      color: notif.color,
+      start_date: notif.start_date,
+      end_date: notif.end_date,
+      image_url: notif.image_url || "",
+      active: notif.active,
+      description: notif.description || "",
+      coupon_id: notif.coupon_id || "",
+    })
+    setImagePreview(notif.image_url || null)
+    setImageFile(null)
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
@@ -136,7 +156,7 @@ export function AdminNotificationsPage() {
     <AdminLayout>
       <div className="admin-topbar">
         <h1>Notifications clients</h1>
-        <button className="btn btn-primary btn-sm" onClick={() => { setShowForm(true); setForm(emptyForm); setImagePreview(null) }}>
+        <button className="btn btn-primary btn-sm" onClick={() => { setShowForm(true); setForm(emptyForm); setImagePreview(null); setEditingId(null) }}>
           + Nouvelle notification
         </button>
       </div>
@@ -145,7 +165,7 @@ export function AdminNotificationsPage() {
 
       {showForm ? (
         <div className="card mt-24">
-          <h3 className="section-title">Nouvelle notification</h3>
+          <h3 className="section-title">{editingId ? "Modifier la notification" : "Nouvelle notification"}</h3>
           <form onSubmit={handleSubmit}>
             {error ? <div className="form-error-banner">{error}</div> : null}
             <div className="field">
@@ -207,7 +227,7 @@ export function AdminNotificationsPage() {
               <button type="submit" className="btn btn-primary" disabled={submitting || uploading}>
                 {uploading ? "Upload image......" : submitting ? "Creation..." : "Publier la notification"}
               </button>
-              <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>Annuler</button>
+              <button type="button" className="btn btn-secondary" onClick={() => { setShowForm(false); setEditingId(null); setForm(emptyForm); setImagePreview(null) }}>Annuler</button>
             </div>
           </form>
         </div>
@@ -245,7 +265,10 @@ export function AdminNotificationsPage() {
                     {notif.active ? "Active" : "Inactive"}
                   </span>
                 </td>
-                <td style={{ display: "flex", gap: 6 }}>
+                <td style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  <button className="btn btn-secondary btn-sm" onClick={() => startEdit(notif)}>
+                    Modifier
+                  </button>
                   <button className="btn btn-secondary btn-sm" onClick={() => toggleActive(notif)}>
                     {notif.active ? "Désactiver" : "Réactiver"}
                   </button>
