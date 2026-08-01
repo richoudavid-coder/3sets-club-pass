@@ -35,8 +35,9 @@ export function PlayerPassPage() {
 
       const couponIds = (pcData || []).map((pc) => pc.coupon_id)
 
+      const today = new Date().toISOString().split("T")[0]
       const { data: couponsData } = couponIds.length > 0
-        ? await supabase.from("coupons").select("*").in("id", couponIds).eq("active", true)
+        ? await supabase.from("coupons").select("*").in("id", couponIds).eq("active", true).lte("start_date", today)
         : { data: [] }
 
       const couponsMap = new Map((couponsData || []).map((c) => [c.id, c]))
