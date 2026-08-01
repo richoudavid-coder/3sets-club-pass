@@ -9,6 +9,7 @@ interface CouponCardProps {
   status: CouponStatus
   index?: number
   sport?: string
+  hideStatus?: boolean
 }
 
 function extractHighlight(title: string): { highlight: string; rest: string } {
@@ -20,7 +21,7 @@ function extractHighlight(title: string): { highlight: string; rest: string } {
   return { highlight: "", rest: title }
 }
 
-export function CouponCard({ title, description, terms, endDate, status, index, sport }: CouponCardProps) {
+export function CouponCard({ title, description, terms, endDate, status, index, sport, hideStatus }: CouponCardProps) {
   const { highlight, rest } = extractHighlight(title)
   const num = index !== undefined ? String(index + 1).padStart(2, "0") : null
 
@@ -82,7 +83,7 @@ export function CouponCard({ title, description, terms, endDate, status, index, 
           <span className="cpv2-card__terms">{terms}</span>
           <span className="cpv2-card__date">Valable jusqu'au {formatDateFr(endDate)}</span>
         </div>
-        <span className={"cpv2-status cpv2-status--" + status}>{STATUS_LABELS[status]}</span>
+        {!hideStatus ? <span className={"cpv2-status cpv2-status--" + status}>{STATUS_LABELS[status]}</span> : <span />}
       </div>
     </div>
   )
