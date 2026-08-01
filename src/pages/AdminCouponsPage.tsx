@@ -97,28 +97,37 @@ export function AdminCouponsPage() {
     setFeedback(null)
     setError(null)
 
-    // Récupèrer tous les clubs qui proposent ce sport (sport principal OU dans le tableau sports)
-    const { data: clubs } = await supabase
-      .from("clubs")
-      .select("id, sport, sports")
+    let players: any[] = []
+    let playersError: any = null
 
-    const eligibleClubIds = (clubs || [])
-      .filter((club: any) => {
-        const clubSports = club.sports && club.sports.length > 0 ? club.sports : [club.sport]
-        return clubSports.includes(coupon.sport)
-      })
-      .map((club: any) => club.id)
+    if (coupon.sport === "tous-sports") {
+      const result = await supabase.from("players").select("id")
+      players = result.data || []
+      playersError = result.error
+    } else {
+      const { data: clubs } = await supabase
+        .from("clubs")
+        .select("id, sport, sports")
 
-    if (eligibleClubIds.length === 0) {
-      setFeedback("Aucun club trouve pour ce sport.")
-      return
+      const eligibleClubIds = (clubs || [])
+        .filter((club: any) => {
+          const clubSports = club.sports && club.sports.length > 0 ? club.sports : [club.sport]
+          return clubSports.includes(coupon.sport)
+        })
+        .map((club: any) => club.id)
+
+      if (eligibleClubIds.length === 0) {
+        setFeedback("Aucun club trouve pour ce sport.")
+        return
+      }
+
+      const result = await supabase
+        .from("players")
+        .select("id")
+        .in("club_id", eligibleClubIds)
+      players = result.data || []
+      playersError = result.error
     }
-
-    // Récupèrer tous les joueurs de ces clubs
-    const { data: players, error: playersError } = await supabase
-      .from("players")
-      .select("id")
-      .in("club_id", eligibleClubIds)
 
     if (playersError || !players || players.length === 0) {
       setFeedback("Aucun joueur trouve pour ce sport.")
