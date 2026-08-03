@@ -94,7 +94,7 @@ export function ClubSignupPage() {
         setSubmitting(false)
         return
       }
-      navigate("/pass/" + passToken)
+      navigate("/pass/" + passToken + "?new=1")
     } catch (err) {
       setError("Une erreur inattendue est survenue.")
       setSubmitting(false)

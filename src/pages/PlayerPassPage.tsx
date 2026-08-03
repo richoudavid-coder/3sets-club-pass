@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link, useSearchParams } from "react-router-dom"
 import { BrandHeader } from "../components/BrandHeader"
 import { Loader } from "../components/Loader"
 import { CouponCard } from "../components/CouponCard"
@@ -11,11 +11,26 @@ import { SPORT_LABELS } from "../types"
 
 export function PlayerPassPage() {
   const { playerId: passToken } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [player, setPlayer] = useState<any>(null)
   const [coupons, setCoupons] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
-  const { permission, subscribed, subscribe } = usePushNotifications(passToken)
+  const [showNotificationSetup, setShowNotificationSetup] = useState(searchParams.get("new") === "1")
+  const { permission, subscribed, busy, error: pushError, isIos, isStandalone, supported, subscribe } = usePushNotifications(passToken)
+
+  function closeNotificationSetup() {
+    setShowNotificationSetup(false)
+    if (searchParams.has("new")) {
+      const next = new URLSearchParams(searchParams)
+      next.delete("new")
+      setSearchParams(next, { replace: true })
+    }
+  }
+
+  async function activateNotifications() {
+    if (await subscribe()) closeNotificationSetup()
+  }
 
   useEffect(() => {
     if (!passToken) return
@@ -57,7 +72,7 @@ export function PlayerPassPage() {
     <div className="app-shell">
       <BrandHeader tagline="Mon pass 3SETS" />
       <div className="page-container">
-        <NotificationBanner />
+        {!showNotificationSetup ? <NotificationBanner /> : null}
         <div className="pass-greeting">
           <h1>Bonjour {player.first_name}</h1>
           <div className="pass-greeting__meta">
@@ -75,25 +90,29 @@ export function PlayerPassPage() {
         <p style={{ color: "var(--grey-text)", fontSize: "0.88rem", marginTop: 4 }}>
           Présente cet écran en magasin pour faire valider tes coupons par un vendeur 3SETS.
         </p>
-        {permission === "default" && !subscribed ? (
+        {!subscribed ? (
           <div style={{ background: "var(--navy)", borderRadius: 12, padding: "14px 16px", marginTop: 12, display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ flex: 1 }}>
               <div style={{ color: "white", fontWeight: 700, fontSize: "0.88rem", marginBottom: 3 }}>
-                Activer les notifications
+                {isIos && !isStandalone ? "Installer le Club Pass" : "Activer les notifications"}
               </div>
               <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.75rem" }}>
-                Sois alerté des nouvelles offres 3SETS en temps réel
+                {isIos && !isStandalone
+                  ? "Sur iPhone : Partager → Sur l’écran d’accueil, puis ouvre l’icône 3SETS."
+                  : "Sois alerté des nouvelles offres 3SETS en temps réel."}
               </div>
+              {pushError ? <div style={{ color: "#ffd2d2", fontSize: "0.74rem", marginTop: 6 }}>{pushError}</div> : null}
             </div>
-            <button
-              onClick={subscribe}
+            {!(isIos && !isStandalone) ? <button
+              onClick={activateNotifications}
+              disabled={busy || !supported}
               style={{ background: "var(--orange)", color: "white", border: "none", borderRadius: 8, padding: "8px 14px", fontWeight: 700, fontSize: "0.82rem", cursor: "pointer", whiteSpace: "nowrap" }}
             >
-              Activer
-            </button>
+              {busy ? "Activation…" : permission === "granted" ? "Finaliser" : "Activer"}
+            </button> : null}
           </div>
         ) : null}
-        {permission === "granted" || subscribed ? (
+        {subscribed ? (
           <div style={{ background: "var(--success-bg)", borderRadius: 12, padding: "10px 16px", marginTop: 12, fontSize: "0.78rem", color: "var(--success)", fontWeight: 600 }}>
             Notifications activées — tu seras alerté des nouvelles offres
           </div>
@@ -115,6 +134,35 @@ export function PlayerPassPage() {
             />
           ))}
         </div>
+        {showNotificationSetup ? (
+          <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(10,31,68,0.78)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+            <div style={{ background: "white", width: "100%", maxWidth: 420, borderRadius: 18, padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,.35)" }}>
+              <div style={{ fontSize: "2rem", marginBottom: 8 }}>🔔</div>
+              <h2 style={{ marginBottom: 10 }}>Ne rate aucune offre 3SETS</h2>
+              {isIos && !isStandalone ? (
+                <>
+                  <p style={{ color: "var(--grey-text)", lineHeight: 1.5 }}>Pour recevoir les notifications sur ton iPhone :</p>
+                  <ol style={{ margin: "14px 0 18px", paddingLeft: 22, lineHeight: 1.8, color: "var(--navy)" }}>
+                    <li>Appuie sur le bouton <strong>Partager</strong> de Safari.</li>
+                    <li>Choisis <strong>Sur l’écran d’accueil</strong>.</li>
+                    <li>Ouvre ensuite le Club Pass depuis l’icône 3SETS.</li>
+                    <li>Appuie sur <strong>Activer les notifications</strong>.</li>
+                  </ol>
+                  <button className="btn btn-secondary btn-block" onClick={closeNotificationSetup}>J’ai compris</button>
+                </>
+              ) : (
+                <>
+                  <p style={{ color: "var(--grey-text)", lineHeight: 1.5, marginBottom: 16 }}>Autorise les notifications pour recevoir les nouvelles offres directement sur ton téléphone.</p>
+                  {pushError ? <div className="form-error-banner">{pushError}</div> : null}
+                  <button className="btn btn-primary btn-block" onClick={activateNotifications} disabled={busy || !supported}>
+                    {busy ? "Activation en cours…" : "Activer les notifications"}
+                  </button>
+                  <button className="btn btn-secondary btn-block" style={{ marginTop: 8 }} onClick={closeNotificationSetup}>Plus tard</button>
+                </>
+              )}
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   )
