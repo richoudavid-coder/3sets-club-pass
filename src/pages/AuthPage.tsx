@@ -4,47 +4,26 @@ import { BrandHeader } from '../components/BrandHeader'
 import { useAuth } from '../lib/AuthContext'
 
 export function AuthPage() {
-  const { session, isAdmin, signIn, signUp, loading } = useAuth()
+  const { session, isAdmin, signIn, loading } = useAuth()
   const navigate = useNavigate()
-
-  const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [info, setInfo] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  if (!loading && session && isAdmin) {
-    return <Navigate to="/admin" replace />
-  }
+  if (!loading && session && isAdmin) return <Navigate to="/admin" replace />
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
-    setInfo(null)
     setSubmitting(true)
-
-    if (mode === 'login') {
-      const { error: signInError } = await signIn(email.trim(), password)
-      if (signInError) {
-        setError(signInError)
-        setSubmitting(false)
-        return
-      }
-      navigate('/admin')
-    } else {
-      const { error: signUpError } = await signUp(email.trim(), password)
-      if (signUpError) {
-        setError(signUpError)
-        setSubmitting(false)
-        return
-      }
-      setInfo(
-        'Compte créé. Si la confirmation par email est activée sur ton projet Supabase, vérifie ta boîte mail avant de te connecter.'
-      )
-      setMode('login')
+    const { error: signInError } = await signIn(email.trim(), password)
+    if (signInError) {
+      setError(signInError)
       setSubmitting(false)
+      return
     }
+    navigate('/admin')
   }
 
   return (
@@ -52,57 +31,24 @@ export function AuthPage() {
       <BrandHeader tagline="Espace vendeur 3SETS" />
       <div className="page-container">
         <div className="card auth-card">
-          <div className="auth-tabs">
-            <button className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>
-              Connexion
-            </button>
-            <button
-              className={mode === 'signup' ? 'active' : ''}
-              onClick={() => setMode('signup')}
-            >
-              Créer un compte
-            </button>
-          </div>
-
+          <h2 style={{ marginBottom: 16 }}>Connexion vendeur</h2>
           <form onSubmit={handleSubmit}>
             {error && <div className="form-error-banner">{error}</div>}
-            {info && <div className="form-succèss-banner">{info}</div>}
-
             <div className="field">
-              <label>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="magasin@3sets.fr"
-                autoComplete="email"
-              />
+              <label htmlFor="seller-email">Email</label>
+              <input id="seller-email" required type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
             </div>
-
             <div className="field">
-              <label>Mot de passe</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-              />
+              <label htmlFor="seller-password">Mot de passe</label>
+              <input id="seller-password" required minLength={8} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
             </div>
-
             <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
-              {submitting
-                ? 'Connexion en cours…'
-                : mode === 'login'
-                  ? 'Se connecter'
-                  : 'Créer le compte'}
+              {submitting ? 'Connexion en cours…' : 'Se connecter'}
             </button>
           </form>
         </div>
-
-        <p className="text-center" style={{ fontSize: '0.78rem', color: 'var(--grey-text)', marginTop: 12 }}><a href="/mot-de-passe-oublie" style={{ color: 'var(--navy)', fontWeight: 700 }}>Mot de passe oublié ?</a></p><p className="text-center" style={{ fontSize: '0.78rem', color: 'var(--grey-text)', marginTop: 8 }}>
-          Le compte magasin@3sets.fr devient automatiquement administrateur à sa création (voir le
-          script SQL fourni).
+        <p className="text-center" style={{ fontSize: '0.78rem', marginTop: 12 }}>
+          <a href="/mot-de-passe-oublie" style={{ color: 'var(--navy)', fontWeight: 700 }}>Mot de passe oublié ?</a>
         </p>
       </div>
     </div>

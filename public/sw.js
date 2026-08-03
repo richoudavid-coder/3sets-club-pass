@@ -1,19 +1,35 @@
 // Service Worker 3SETS Club Pass
-const CACHE_NAME = '3sets-club-pass-v1'
+const CACHE_NAME = '3sets-club-pass-v2'
+const APP_SHELL = ['/', '/manifest.json', '/favicon.svg', '/logo-white.svg', '/logo-yellow.svg']
 
 self.addEventListener('install', (event) => {
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)))
   self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim())
+  event.waitUntil(Promise.all([
+    clients.claim(),
+    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+  ]))
+})
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin) return
+  event.respondWith(fetch(event.request).then((response) => {
+    const copy = response.clone()
+    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy))
+    return response
+  }).catch(() => caches.match(event.request).then((cached) => cached || caches.match('/'))))
 })
 
 // Gestion des notifications push
 self.addEventListener('push', (event) => {
   if (!event.data) return
   
-  const data = event.data.json()
+  let data
+  try { data = event.data.json() } catch { return }
+  if (!data || typeof data.title !== 'string') return
   const options = {
     body: data.message,
     icon: '/favicon.svg',
@@ -39,7 +55,7 @@ self.addEventListener('notificationclick', (event) => {
   
   if (event.action === 'close') return
   
-  const url = event.notification.data?.url || '/'
+  const url = new URL(event.notification.data?.url || '/', self.location.origin).href
   
   event.waitUntil(
     clients.matchAll({ type: 'window' }).then((clientList) => {

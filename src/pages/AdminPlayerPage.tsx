@@ -50,6 +50,11 @@ export function AdminPlayerPage() {
     setValidating(true)
     setFeedback(null)
     const montant = montantPanier ? parseFloat(montantPanier) : null
+    if (montant !== null && (!Number.isFinite(montant) || montant < 0)) {
+      setFeedback("Le montant du panier doit être un nombre positif.")
+      setValidating(false)
+      return
+    }
     const { data, error } = await supabase
       .from("player_coupons")
       .update({ status: "used", used_at: new Date().toISOString(), montant_panier: montant })
@@ -108,7 +113,7 @@ export function AdminPlayerPage() {
   return (
     <AdminLayout>
       <Link to="/admin" className="breadcrumb-link">&#8592; Retour au tableau de bord</Link>
-      {feedback ? <div className="form-succèss-banner">{feedback}</div> : null}
+      {feedback ? <div className="form-success-banner">{feedback}</div> : null}
       <div className="card">
         <h2 style={{ marginBottom: 16 }}>{player.first_name} {player.last_name}</h2>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 4 }}>
@@ -134,7 +139,7 @@ export function AdminPlayerPage() {
           </div>
           <div>
             <div style={{ fontSize: "0.78rem", color: "var(--grey-text)", fontWeight: 600, marginBottom: 3 }}>Newsletter</div>
-            <strong style={{ fontSize: "0.95rem", color: player.newsletter ? "var(--succèss)" : "var(--grey-text)" }}>
+            <strong style={{ fontSize: "0.95rem", color: player.newsletter ? "var(--success)" : "var(--grey-text)" }}>
               {player.newsletter ? "Acceptee" : "Refusee"}
             </strong>
           </div>

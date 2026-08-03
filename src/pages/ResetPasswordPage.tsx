@@ -28,7 +28,7 @@ export function ResetPasswordPage() {
         <div className="card auth-card">
           <h2 style={{ marginBottom: 16, fontSize: "1.2rem" }}>Mot de passe oublié</h2>
           {sent ? (
-            <div className="form-succèss-banner">
+            <div className="form-success-banner">
               Un email de réinitialisation a ete envoye a {email}. Vérifie ta boite mail et clique sur le lien pour choisir un nouveau mot de passe.
             </div>
           ) : (

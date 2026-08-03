@@ -67,6 +67,10 @@ export function AdminCouponsPage() {
       setError("Merci de remplir tous les champs obligatoires.")
       return
     }
+    if (!form.start_date || !form.end_date || form.end_date < form.start_date) {
+      setError("La date de fin doit être postérieure à la date de début.")
+      return
+    }
     const payload = {
       title: form.title.trim(),
       description: form.description.trim(),
@@ -161,15 +165,17 @@ export function AdminCouponsPage() {
   async function handleDeleteCoupon() {
     if (!deleteTarget) return
     setDeleting(true)
-    await supabase.from("coupons").delete().eq("id", deleteTarget.id)
-    setFeedback("Coupon supprime avec succès.")
+    const { error: deleteError } = await supabase.from("coupons").delete().eq("id", deleteTarget.id)
+    if (deleteError) setError("Le coupon n’a pas pu être supprimé.")
+    else setFeedback("Coupon supprimé avec succès.")
     setDeleteTarget(null)
     setDeleting(false)
     loadCoupons()
   }
 
   async function toggleActive(coupon: any) {
-    await supabase.from("coupons").update({ active: !coupon.active }).eq("id", coupon.id)
+    const { error: updateError } = await supabase.from("coupons").update({ active: !coupon.active }).eq("id", coupon.id)
+    if (updateError) setError("Le statut du coupon n’a pas pu être modifié.")
     loadCoupons()
   }
 
@@ -182,7 +188,7 @@ export function AdminCouponsPage() {
         <button className="btn btn-primary btn-sm" onClick={startCreate}>+ Nouveau coupon</button>
       </div>
 
-      {feedback ? <div className="form-succèss-banner">{feedback}</div> : null}
+      {feedback ? <div className="form-success-banner">{feedback}</div> : null}
 
       {showForm ? (
         <div className="card mt-24">
@@ -258,7 +264,7 @@ export function AdminCouponsPage() {
                 <td>{formatDateFr(coupon.end_date)}</td>
                 <td>{coupon.valeur_euros ? coupon.valeur_euros + " €" : "-"}</td>
                 <td>
-                  <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: coupon.active ? "var(--succèss-bg)" : "var(--neutral-bg)", color: coupon.active ? "var(--succèss)" : "var(--neutral)" }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: coupon.active ? "var(--success-bg)" : "var(--neutral-bg)", color: coupon.active ? "var(--success)" : "var(--neutral)" }}>
                     {coupon.active ? "Actif" : "Inactif"}
                   </span>
                 </td>

@@ -162,7 +162,7 @@ export function AdminClubsPage() {
         <h1>Gestion des clubs</h1>
       </div>
 
-      {feedback ? <div className="form-succèss-banner">{feedback}</div> : null}
+      {feedback ? <div className="form-success-banner">{feedback}</div> : null}
 
       <div className="card mt-24">
         <h3 className="section-title">Ajouter un nouveau club</h3>

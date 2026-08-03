@@ -10,59 +10,28 @@ import { computeDisplayStatus } from "../lib/coupons"
 import { SPORT_LABELS } from "../types"
 
 export function PlayerPassPage() {
-  const { playerId } = useParams()
+  const { playerId: passToken } = useParams()
   const [player, setPlayer] = useState<any>(null)
   const [coupons, setCoupons] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
-  const { permission, subscribed, subscribe } = usePushNotifications(playerId)
+  const { permission, subscribed, subscribe } = usePushNotifications(passToken)
 
   useEffect(() => {
-    if (!playerId) return
+    if (!passToken) return
     async function load() {
       setLoading(true)
       if (!isSupabaseConfigured) { setNotFound(true); setLoading(false); return }
-      const { data: playerData, error: playerError } = await supabase
-        .from("players").select("*, club:clubs(*)").eq("id", playerId).maybeSingle()
-      if (playerError || !playerData) { setNotFound(true); setLoading(false); return }
-      setPlayer(playerData)
-
-      const { data: pcData } = await supabase
-        .from("player_coupons")
-        .select("id, status, used_at, coupon_id")
-        .eq("player_id", playerId)
-        .order("created_at", { ascending: true })
-
-      const couponIds = (pcData || []).map((pc) => pc.coupon_id)
-
-      const today = new Date().toISOString().split("T")[0]
-      const { data: couponsData } = couponIds.length > 0
-        ? await supabase.from("coupons").select("*").in("id", couponIds).eq("active", true).lte("start_date", today)
-        : { data: [] }
-
-      const couponsMap = new Map((couponsData || []).map((c) => [c.id, c]))
-
-      const views = (pcData || [])
-        .filter((pc) => couponsMap.has(pc.coupon_id))
-        .map((pc) => {
-          const coupon = couponsMap.get(pc.coupon_id)
-          return {
-            playerCouponId: pc.id,
-            title: coupon.title,
-            description: coupon.description,
-            terms: coupon.terms,
-            endDate: coupon.end_date,
-            sport: coupon.sport,
-            status: computeDisplayStatus(pc.status, coupon.end_date),
-            usedAt: pc.used_at,
-          }
-        })
-
-      setCoupons(views)
+      const { data, error: passError } = await supabase.rpc("get_player_pass", { p_pass_token: passToken })
+      if (passError || !data?.player) { setNotFound(true); setLoading(false); return }
+      setPlayer(data.player)
+      setCoupons((data.coupons || []).map((coupon: any) => ({
+        ...coupon, status: computeDisplayStatus(coupon.status, coupon.endDate),
+      })))
       setLoading(false)
     }
     load()
-  }, [playerId])
+  }, [passToken])
 
   if (loading) return (
     <div className="app-shell">

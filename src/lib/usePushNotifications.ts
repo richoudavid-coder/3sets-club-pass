@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../lib/supabase"
 
-const VAPID_PUBLIC_KEY = "BJLiSBntvogSPLMEKPK5oRjrS9R0USPG3OzLO-8yWyHV5g0pkuBfr_9yem24IrQNm6HGC6tukDsbQy5tC3XDotA"
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4)
@@ -14,7 +14,7 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray
 }
 
-export function usePushNotifications(playerId?: string) {
+export function usePushNotifications(passToken?: string) {
   const [permission, setPermission] = useState<NotificationPermission>("default")
   const [subscribed, setSubscribed] = useState(false)
 
@@ -37,7 +37,11 @@ export function usePushNotifications(playerId?: string) {
   }
 
   async function subscribe() {
-    if (!playerId) return
+    if (!passToken) return
+    if (!VAPID_PUBLIC_KEY) {
+      console.error("Clé VAPID publique manquante")
+      return
+    }
     const reg = await registerServiceWorker()
     if (!reg) return
 
@@ -52,11 +56,10 @@ export function usePushNotifications(playerId?: string) {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       })
 
-      const { error } = await supabase.from("push_subscriptions").upsert({
-        player_id: playerId,
-        subscription: JSON.stringify(subscription),
-        created_at: new Date().toISOString(),
-      }, { onConflict: "player_id" })
+      const { error } = await supabase.rpc("save_push_subscription", {
+        p_pass_token: passToken,
+        p_subscription: subscription.toJSON(),
+      })
 
       if (error) {
         console.error("Erreur sauvegarde:", error)

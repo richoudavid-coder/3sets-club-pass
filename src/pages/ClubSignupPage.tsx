@@ -17,9 +17,10 @@ export function ClubSignupPage() {
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
-  const [newsletter, setNewsletter] = useState(true)
+  const [newsletter, setNewsletter] = useState(false)
   const [tab, setTab] = useState("new")
   const [existingEmail, setExistingEmail] = useState("")
+  const [existingPhone, setExistingPhone] = useState("")
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
 
@@ -42,16 +43,14 @@ export function ClubSignupPage() {
   async function handleFindPass(e: any) {
     e.preventDefault()
     setSearchError(null)
-    if (!existingEmail.trim() || !club) return
+    if (!existingEmail.trim() || !existingPhone.trim() || !club) return
     setSearching(true)
-    const { data } = await supabase
-      .from("players")
-      .select("id")
-      .eq("club_id", club.id)
-      .eq("email", existingEmail.trim().toLowerCase())
-      .maybeSingle()
-    if (data) {
-      navigate("/pass/" + data.id)
+    const { data, error: findError } = await supabase.rpc("find_player_passes", {
+      p_email: existingEmail.trim().toLowerCase(), p_phone: existingPhone.trim(),
+    })
+    const match = (data || []).find((p: any) => p.club_name === club.name)
+    if (!findError && match) {
+      navigate("/pass/" + match.pass_token)
     } else {
       setSearchError("Aucun compte trouvé avec cet email pour ce club. Vérifie ton adresse ou inscris-toi.")
     }
@@ -77,76 +76,25 @@ export function ClubSignupPage() {
     setSubmitting(true)
 
     try {
-      // Verifier si email deja utilise dans n'importe quel club
-      const { data: existingEmail } = await supabase
-        .from("players").select("id, club_id")
-        .eq("email", email.trim().toLowerCase())
-
-      if (existingEmail && existingEmail.length > 0) {
-        const sameClub = existingEmail.find((p: any) => p.club_id === club.id)
-        if (sameClub) { navigate("/pass/" + sameClub.id); return }
-        setError("Cette adresse email est deja utilisee dans un autre club 3SETS. Utilise l'onglet Deja inscrit ou retrouve ton pass sur la page d'accueil.")
+      const digits = phone.replace(/\D/g, "")
+      if (digits.length < 10 || digits.length > 15) {
+        setError("Merci de saisir un numéro de téléphone valide.")
         setSubmitting(false)
         return
       }
-
-      // Verifier si telephone deja utilise dans n'importe quel club
-      const { data: existingPhone } = await supabase
-        .from("players").select("id, club_id")
-        .eq("phone", phone.trim())
-
-      if (existingPhone && existingPhone.length > 0) {
-        setError("Ce numero de telephone est deja utilise dans un autre club 3SETS. Utilise l'onglet Deja inscrit ou retrouve ton pass sur la page d'accueil.")
-        setSubmitting(false)
-        return
-      }
-
-      const { data: player, error: insertError } = await supabase
-        .from("players").insert({
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-          email: email.trim().toLowerCase(),
-          phone: phone.trim(),
-          sport: club.sport,
-          club_id: club.id,
-          newsletter: newsletter,
-        }).select().single()
-
-      if (insertError || !player) {
-        setError("Une erreur est survenue lors de l'inscription. Réessaie dans un instant.")
-        setSubmitting(false)
-        return
-      }
-
-      // Récupèrer tous les sports du club (multi-sports ou sport unique)
-      const clubSports = club.sports && club.sports.length > 0 ? club.sports : [club.sport]
-      
-      // Attribuér les coupons pour chaque sport du club
-      const allCoupons = []
-      for (const sp of clubSports) {
-        const { data } = await supabase
-          .from("coupons").select("id").eq("sport", sp).eq("active", true)
-          .or("club_id.is.null,club_id.eq." + club.id)
-        if (data) allCoupons.push(...data)
-      }
-      // Dedupliquer
-      const seen = new Set()
-      const matchingCoupons = allCoupons.filter((c) => {
-        if (seen.has(c.id)) return false
-        seen.add(c.id)
-        return true
+      const { data: passToken, error: registerError } = await supabase.rpc("register_player", {
+        p_club_slug: slug, p_first_name: firstName.trim(), p_last_name: lastName.trim(),
+        p_email: email.trim().toLowerCase(), p_phone: phone.trim(), p_newsletter: newsletter,
       })
-
-      if (matchingCoupons && matchingCoupons.length > 0) {
-        const rows = matchingCoupons.map((c) => ({
-          player_id: player.id,
-          coupon_id: c.id,
-          status: "available",
-        }))
-        await supabase.from("player_coupons").insert(rows)
+      if (registerError || !passToken) {
+        const knownAccount = registerError?.message?.includes("ACCOUNT_EXISTS")
+        setError(knownAccount
+          ? "Un compte utilisant cet email ou ce téléphone existe déjà. Utilise l’onglet Déjà inscrit avec ton email et ton téléphone."
+          : "L’inscription n’a pas pu être enregistrée. Vérifie les informations puis réessaie.")
+        setSubmitting(false)
+        return
       }
-
-      navigate("/pass/" + player.id)
+      navigate("/pass/" + passToken)
     } catch (err) {
       setError("Une erreur inattendue est survenue.")
       setSubmitting(false)
@@ -207,6 +155,10 @@ export function ClubSignupPage() {
                   autoComplete="email"
                 />
               </div>
+              <div className="field">
+                <label>Ton numéro de téléphone</label>
+                <input type="tel" value={existingPhone} onChange={(e) => setExistingPhone(e.target.value)} autoComplete="tel" required />
+              </div>
               <button type="submit" className="btn btn-primary btn-block" disabled={searching}>
                 {searching ? "Recherche en cours......" : "Retrouver mon pass"}
               </button>
@@ -247,7 +199,7 @@ export function ClubSignupPage() {
                 style={{ width: 18, height: 18, marginTop: 2, accentColor: "var(--orange)", flexShrink: 0 }}
               />
               <label htmlFor="newsletter" style={{ fontSize: "0.88rem", color: "var(--navy-soft)", cursor: "pointer", fontWeight: 400 }}>
-                J'accepte de recevoir les offres exclusives et la newsletter 3SETS par email. Tu pourras te désabonner a tout moment.
+                J'accepte de recevoir les offres exclusives et la newsletter 3SETS par email. Tu pourras te désabonner à tout moment.
               </label>
             </div>
             <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>

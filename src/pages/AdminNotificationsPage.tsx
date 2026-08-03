@@ -75,6 +75,11 @@ export function AdminNotificationsPage() {
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      setError("L’image doit être un JPG, PNG ou WebP de moins de 5 Mo.")
+      return
+    }
+    if (imagePreview?.startsWith("blob:")) URL.revokeObjectURL(imagePreview)
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
   }
@@ -116,8 +121,16 @@ export function AdminNotificationsPage() {
       setError("Merci de remplir le titre, le message et la date de fin.")
       return
     }
+    if (form.end_date < form.start_date) {
+      setError("La date de fin doit être postérieure à la date de début.")
+      return
+    }
     setSubmitting(true)
     const imageUrl = await uploadImage()
+    if (imageFile && !imageUrl) {
+      setSubmitting(false)
+      return
+    }
     const payload = {
       title: form.title.trim(),
       message: form.message.trim(),
@@ -129,13 +142,16 @@ export function AdminNotificationsPage() {
       description: form.description || null,
       coupon_id: form.coupon_id || null,
     }
-    const { error: insertError } = await supabase.from("notifications").insert(payload)
-    if (insertError) { setError("Erreur lors de la creation."); setSubmitting(false); return }
-    setFeedback("Notification créée avec succès.")
+    const result = editingId
+      ? await supabase.from("notifications").update(payload).eq("id", editingId)
+      : await supabase.from("notifications").insert(payload)
+    if (result.error) { setError("Erreur lors de l’enregistrement."); setSubmitting(false); return }
+    setFeedback(editingId ? "Notification modifiée avec succès." : "Notification créée avec succès.")
     setForm(emptyForm)
     setImageFile(null)
     setImagePreview(null)
     setShowForm(false)
+    setEditingId(null)
     setSubmitting(false)
     loadNotifications()
   }
@@ -166,7 +182,7 @@ export function AdminNotificationsPage() {
         </button>
       </div>
 
-      {feedback ? <div className="form-succèss-banner">{feedback}</div> : null}
+      {feedback ? <div className="form-success-banner">{feedback}</div> : null}
 
       {showForm ? (
         <div className="card mt-24">
@@ -266,7 +282,7 @@ export function AdminNotificationsPage() {
                   {formatDateFr(notif.start_date)}<br />au {formatDateFr(notif.end_date)}
                 </td>
                 <td>
-                  <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: notif.active ? "var(--succèss-bg)" : "var(--neutral-bg)", color: notif.active ? "var(--succèss)" : "var(--neutral)" }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: notif.active ? "var(--success-bg)" : "var(--neutral-bg)", color: notif.active ? "var(--success)" : "var(--neutral)" }}>
                     {notif.active ? "Active" : "Inactive"}
                   </span>
                 </td>

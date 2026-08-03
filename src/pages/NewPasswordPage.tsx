@@ -8,7 +8,7 @@ export function NewPasswordPage() {
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const [succèss, setSuccèss] = useState(false)
+  const [success, setSuccèss] = useState(false)
   const [loading, setLoading] = useState(false)
   const [ready, setReady] = useState(false)
 
@@ -39,8 +39,8 @@ export function NewPasswordPage() {
       <div className="page-container">
         <div className="card auth-card">
           <h2 style={{ marginBottom: 16, fontSize: "1.2rem" }}>Choisir un nouveau mot de passe</h2>
-          {succèss ? (
-            <div className="form-succèss-banner">
+          {success ? (
+            <div className="form-success-banner">
               Mot de passe modifie avec succès. Tu vas etre redirige vers la connexion...
             </div>
           ) : !ready ? (

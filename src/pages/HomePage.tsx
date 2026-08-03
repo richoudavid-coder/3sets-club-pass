@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase"
 export function HomePage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
   const [searching, setSearching] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<any[]>([])
@@ -14,16 +15,15 @@ export function HomePage() {
     e.preventDefault()
     setError(null)
     setResults([])
-    if (!email.trim()) { setError("Merci de saisir ton adresse email."); return }
+    if (!email.trim() || !phone.trim()) { setError("Merci de saisir ton email et ton téléphone."); return }
     setSearching(true)
-    const { data } = await supabase
-      .from("players")
-      .select("id, first_name, last_name, sport, club:clubs(name)")
-      .eq("email", email.trim().toLowerCase())
-    if (!data || data.length === 0) {
-      setError("Aucun compte trouve avec cet email. Verifie ton adresse ou inscris-toi via le QR code de ton club.")
+    const { data, error: findError } = await supabase.rpc("find_player_passes", {
+      p_email: email.trim().toLowerCase(), p_phone: phone.trim(),
+    })
+    if (findError || !data || data.length === 0) {
+      setError("Aucun pass trouvé avec ces informations. Vérifie ton email et ton téléphone.")
     } else if (data.length === 1) {
-      navigate("/pass/" + data[0].id)
+      navigate("/pass/" + data[0].pass_token)
     } else {
       setResults(data)
     }
@@ -45,8 +45,8 @@ export function HomePage() {
 
         <div className="card">
           <h2 style={{ fontSize: "1.1rem", marginBottom: 6 }}>Retrouver mon pass</h2>
-          <p style={{ color: "var(--grey-text)", fontSize: "0.85rem", marginBottom: 16 }}>
-            Entre ton adresse email pour acceder a tes coupons.
+            <p style={{ color: "var(--grey-text)", fontSize: "0.85rem", marginBottom: 16 }}>
+            Entre ton email et ton téléphone pour accéder à tes coupons en toute sécurité.
           </p>
           <form onSubmit={handleFindPass}>
             {error ? <div className="form-error-banner">{error}</div> : null}
@@ -59,6 +59,10 @@ export function HomePage() {
                 placeholder="jean.dupont@email.fr"
                 autoComplete="email"
               />
+            </div>
+            <div className="field">
+              <label>Ton numéro de téléphone</label>
+              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" required />
             </div>
             <button type="submit" className="btn btn-primary btn-block" disabled={searching}>
               {searching ? "Recherche en cours..." : "Retrouver mon pass"}
@@ -73,11 +77,11 @@ export function HomePage() {
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {results.map((p) => (
                   <button
-                    key={p.id}
+                    key={p.pass_token}
                     className="btn btn-secondary"
-                    onClick={() => navigate("/pass/" + p.id)}
+                    onClick={() => navigate("/pass/" + p.pass_token)}
                   >
-                    {p.club?.name} — {p.first_name} {p.last_name}
+                    {p.club_name} — {p.first_name} {p.last_name}
                   </button>
                 ))}
               </div>

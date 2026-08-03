@@ -9,7 +9,6 @@ interface AuthContextValue {
   loading: boolean
   isAdmin: boolean
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
-  signUp: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
 }
 
@@ -54,23 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error ? translateAuthError(error.message) : null }
   }
 
-  async function signUp(email: string, password: string) {
-    const { data, error } = await supabase.auth.signUp({ email, password })
-    if (error) return { error: translateAuthError(error.message) }
-
-    // Création du profil associé (le rôle admin pour magasin@3sets.fr est géré côté SQL,
-    // voir supabase/schema.sql — trigger handle_new_user)
-    if (data.user) {
-      await supabase.from('profiles').upsert({
-        id: data.user.id,
-        email: data.user.email,
-        role: data.user.email === 'magasin@3sets.fr' ? 'admin' : 'player',
-      })
-    }
-
-    return { error: null }
-  }
-
   async function signOut() {
     await supabase.auth.signOut()
   }
@@ -81,7 +63,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     isAdmin: profile?.role === 'admin',
     signIn,
-    signUp,
     signOut,
   }
 
